@@ -1,0 +1,63 @@
+---
+// "Talk to us" form. Submissions go to Netlify (Forms → "contact"),
+// and Netlify can email each one to you. Works without JavaScript.
+---
+<form
+  class="contact-form"
+  name="contact"
+  method="POST"
+  action="/thanks/"
+  data-netlify="true"
+  netlify-honeypot="bot-field"
+>
+  <input type="hidden" name="form-name" value="contact" />
+  <p class="hidden-field" aria-hidden="true">
+    <label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+  </p>
+
+  <div class="row">
+    <div class="field">
+      <label for="c-name">Name</label>
+      <input id="c-name" class="input" name="name" required autocomplete="name" />
+    </div>
+    <div class="field">
+      <label for="c-email">Work email</label>
+      <input id="c-email" class="input" type="email" name="email" required autocomplete="email" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="c-org">Institution or organization</label>
+      <input id="c-org" class="input" name="organization" required autocomplete="organization" />
+    </div>
+    <div class="field">
+      <label for="c-role">I'm reaching out as…</label>
+      <select id="c-role" class="input" name="role" required>
+        <option value="" disabled selected>Choose one</option>
+        <option>Research computing / HPC</option>
+        <option>University leadership or IT</option>
+        <option>Researcher or engineer</option>
+        <option>Investor or accelerator</option>
+        <option>Other</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="c-msg">What would you like to talk about? <span class="optional">(optional)</span></label>
+    <textarea id="c-msg" class="input" name="message" rows="5"></textarea>
+  </div>
+
+  <div class="submit">
+    <button class="btn btn--primary" type="submit">Send message <span class="arrow" aria-hidden="true">→</span></button>
+    <p class="caption">We'll reply by email. See our <a href="/privacy/">privacy note</a>.</p>
+  </div>
+</form>
+
+<style>
+  .contact-form { display: grid; gap: 1.25rem; }
+  .row { display: grid; gap: 1.25rem; }
+  @media (min-width: 640px) { .row { grid-template-columns: 1fr 1fr; } }
+  .submit { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 0.25rem; }
+</style>

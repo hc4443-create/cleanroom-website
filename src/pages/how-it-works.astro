@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MemoryGrid from '../components/MemoryGrid.astro';
+import Icon from '../components/Icon.astro';
+import CTABand from '../components/CTABand.astro';
+
+const steps = [
+  {
+    state: 'before',
+    title: 'Research jobs run as usual',
+    text: "Research jobs use your cluster's GPUs just as they do today. Many of them keep a GPU's compute busy while using only a small part of its memory, leaving the rest empty.",
+  },
+  {
+    state: 'shared',
+    title: 'Cleanroom places AI models in the unused memory',
+    text: 'Cleanroom puts AI models into the memory those jobs leave empty. Together, that space becomes a private AI service for your whole campus, running on GPUs you already own.',
+  },
+  {
+    state: 'reclaim',
+    title: 'Research always comes first',
+    text: 'If a research job needs its memory back, Cleanroom gives it up immediately. Your cluster exists for research, and Cleanroom is built around that.',
+  },
+] as const;
+
+const faqs = [
+  { q: 'Do we need to buy new hardware?', a: 'No. Cleanroom runs on the GPUs your institution already owns.' },
+  { q: 'Will it slow down research jobs?', a: "Research jobs get their memory back immediately whenever they need it. To measure any effect on performance, we're running a controlled experiment with research software running alongside AI models. It tracks slowdown (our target is under 5%), response time, and how safely memory is handed back." },
+  { q: 'Which AI models can we use?', a: 'Your institution decides. That includes open models whose weights you keep, which supports reproducible research.' },
+  { q: 'Does our data leave campus?', a: 'Only if you allow it. You set rules for each type of data, so sensitive data stays on campus. For tasks that need the most capable commercial models, Cleanroom can send requests to the cloud wherever your institution permits it.' },
+  { q: 'Do researchers have to change their code?', a: 'Cleanroom provides one secure AI service that is compatible with the tools and code researchers already use.' },
+];
+---
+<BaseLayout
+  title="How it works"
+  description="Cleanroom turns an existing research cluster into a private, campus-wide AI service by placing AI models in GPU memory that research jobs leave unused."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">How it works</span>
+      <h1>A private AI service, made from memory your cluster isn't using.</h1>
+      <p class="lede">Cleanroom turns your existing research cluster into a private, campus-wide AI service. It runs AI models in GPU memory that research jobs leave unused, and gives that memory back the moment research needs it.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <ol class="walk">
+        {steps.map((s, i) => (
+          <li class="split">
+            <div class="copy">
+              <span class="step">Step {i + 1}</span>
+              <h2>{s.title}</h2>
+              <p class="lede">{s.text}</p>
+            </div>
+            <div class="visual">
+              <MemoryGrid state={s.state} showLegend={i === 0 || i === 2} />
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p class="caption note">Illustrations are simplified for clarity.</p>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">For researchers</span>
+        <h2>What researchers get</h2>
+      </div>
+      <div class="grid grid--3">
+        <article class="card">
+          <div class="icon"><Icon name="code" /></div>
+          <h3>Works with existing tools</h3>
+          <p>One secure AI service that works with the tools and code researchers already use.</p>
+        </article>
+        <article class="card">
+          <div class="icon"><Icon name="badge" /></div>
+          <h3>Campus login</h3>
+          <p>Researchers sign in with their campus credentials, and usage can be billed to grants or departments.</p>
+        </article>
+        <article class="card">
+          <div class="icon"><Icon name="users" /></div>
+          <h3>One service for everyone</h3>
+          <p>A single shared service handles many users at once, so researchers don't each have to request cluster time to run their own model.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container faq-wrap">
+      <div class="section-head">
+        <span class="eyebrow">Questions</span>
+        <h2>Common questions</h2>
+      </div>
+      <div class="faq">
+        {faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CTABand title="Curious how this would work on your cluster?" />
+</BaseLayout>
+
+<style>
+  .walk { list-style: none; padding: 0; display: grid; gap: clamp(4rem, 9vw, 6.5rem); }
+  .step { display: inline-block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; }
+  .copy h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: 1rem; }
+  .visual { padding: clamp(1.5rem, 4vw, 2.5rem) 1rem; border-radius: 20px; background: var(--bg-soft); border: 1px solid var(--line); }
+  @media (min-width: 960px) { .walk li:nth-child(even) .copy { order: 2; } }
+  .note { margin-top: 3rem; text-align: center; }
+
+  .faq-wrap { max-width: 52rem; }
+  .faq { border-top: 1px solid var(--line); }
+  details { border-bottom: 1px solid var(--line); }
+  summary { cursor: pointer; list-style: none; padding: 1.35rem 2.5rem 1.35rem 0; font-weight: 600; font-size: 1.08rem; position: relative; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; position: absolute; right: 0.25rem; top: 50%; transform: translateY(-50%); font-size: 1.5rem; font-weight: 300; color: var(--accent); transition: transform 0.2s; }
+  details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+  details p { padding-bottom: 1.4rem; color: var(--ink-2); max-width: 42rem; }
+</style>

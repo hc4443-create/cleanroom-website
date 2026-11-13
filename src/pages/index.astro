@@ -1,0 +1,212 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MemoryGrid from '../components/MemoryGrid.astro';
+import Icon from '../components/Icon.astro';
+import CTABand from '../components/CTABand.astro';
+import { CLUSTER_STUDY, STUDIES } from '../data/research';
+
+const problems = [
+  { icon: 'bill', title: 'Cloud AI charges for every request', text: 'Cloud and enterprise AI services are easy to start with, but they charge per use, so costs climb with every request. Automated research work makes them expensive quickly.' },
+  { icon: 'cloud', title: 'Research data leaves campus', text: 'Using an outside provider means sending prompts and documents off campus, which rules it out for data that has to stay within the institution.' },
+  { icon: 'server', title: 'Building in-house is costly', text: "Running your own AI service usually means buying new AI hardware and hiring dedicated staff, which most universities can't afford." },
+] as const;
+
+const benefits = [
+  { icon: 'control', title: 'Control over models', text: 'Choose which models to run, including open models whose weights your institution keeps.' },
+  { icon: 'repeat', title: 'Reproducible research', text: 'Because you keep the model weights, results stay repeatable even if a cloud model changes or disappears.' },
+  { icon: 'infinity', title: 'No usage caps', text: 'One shared service for all your researchers, without per-request bills that grow with every use.' },
+  { icon: 'badge', title: 'Campus login, grant billing', text: 'Researchers sign in with their campus credentials, and usage can be billed to grants or departments.' },
+  { icon: 'shield', title: 'Data stays on campus', text: 'Set rules for each type of data, so sensitive data stays on hardware your institution controls.' },
+  { icon: 'chip', title: 'No new hardware', text: 'AI runs on the GPUs your institution already owns.' },
+] as const;
+---
+<BaseLayout>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container split">
+      <div class="hero-copy">
+        <span class="eyebrow">Private AI for research institutions</span>
+        <h1>Private AI on the GPU clusters you already own.</h1>
+        <p class="lede">
+          Cleanroom runs AI models in the GPU memory your research jobs leave unused. Your researchers get a private AI
+          service, with no new hardware to buy, no per-use cloud bills, and no data leaving campus.
+        </p>
+        <div class="btn-row">
+          <a href="/contact/" class="btn btn--primary">Talk to us <span class="arrow" aria-hidden="true">→</span></a>
+          <a href="/how-it-works/" class="btn btn--secondary">See how it works</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <MemoryGrid state="animated" size="lg" showStatus />
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="section section--soft">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">The problem</span>
+        <h2>Researchers need AI. Universities have no good way to provide it.</h2>
+        <p class="lede">Research increasingly depends on AI, especially for automated work and for data that can't leave campus. Today's options all fall short.</p>
+      </div>
+      <div class="grid grid--3">
+        {problems.map((p) => (
+          <article class="card">
+            <div class="icon"><Icon name={p.icon} /></div>
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- INSIGHT -->
+  <section class="section dark">
+    <div class="container">
+      <div class="insight">
+        <div>
+          <span class="eyebrow">The insight</span>
+          <h2>The memory is already there, sitting unused.</h2>
+          <p class="lede">
+            On research clusters, most GPU-hours leave most of the GPU's memory empty, even while its compute is busy.
+            Cleanroom runs AI in that empty memory.
+          </p>
+          <a href="/research/" class="link-arrow">See the evidence <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="stats">
+          <div class="stat stat--big">
+            <p class="n">56%</p>
+            <p>of {CLUSTER_STUDY.gpuHours} profiled GPU-hours on {CLUSTER_STUDY.description} peaked at a quarter or less of GPU memory.</p>
+          </div>
+          {STUDIES.map((s) => (
+            <div class="stat">
+              <p class="n">{s.stat}</p>
+              <p>{s.statLabel}. <a href={s.url} target="_blank" rel="noopener">{s.short}</a></p>
+            </div>
+          ))}
+          <p class="caption stats-note">Both are peer-reviewed studies of NERSC's Perlmutter supercomputer.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS (summary) -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">How it works</span>
+        <h2>Your cluster keeps doing research. Cleanroom uses what's left over.</h2>
+      </div>
+      <ol class="steps">
+        <li>
+          <span class="step-n">1</span>
+          <h3>Research jobs run as usual</h3>
+          <p>Your cluster's jobs use its GPUs just as they do today, and many leave most of each GPU's memory empty.</p>
+        </li>
+        <li>
+          <span class="step-n">2</span>
+          <h3>Cleanroom fills the empty memory</h3>
+          <p>Cleanroom places AI models in that unused memory, turning your cluster into a private, campus-wide AI service.</p>
+        </li>
+        <li>
+          <span class="step-n">3</span>
+          <h3>Research always comes first</h3>
+          <p>Whenever a research job needs its memory back, Cleanroom releases it immediately.</p>
+        </li>
+      </ol>
+      <a href="/how-it-works/" class="link-arrow">More on how it works <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section class="section section--soft">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">What institutions get</span>
+        <h2>The control of an in-house AI service, without building one.</h2>
+        <p class="lede">Some universities have built their own AI services to stay in control. Cleanroom gives you the same control and flexibility on hardware you already own, without building anything yourself.</p>
+      </div>
+      <div class="grid grid--3">
+        {benefits.map((b) => (
+          <article class="card">
+            <div class="icon"><Icon name={b.icon} /></div>
+            <h3>{b.title}</h3>
+            <p>{b.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO IT'S FOR -->
+  <section class="section">
+    <div class="container split who">
+      <div>
+        <span class="eyebrow">Who it's for</span>
+        <h2>Built first for research universities.</h2>
+        <p class="lede">We're starting with institutions that already run shared GPU clusters and have researchers who want AI.</p>
+        <a href="/institutions/" class="link-arrow">For institutions <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="who-list">
+        <div class="who-item first">
+          <span class="tag">First</span>
+          <h3>Research universities</h3>
+          <p>Research computing centers at mid-sized U.S. research universities that run shared GPU clusters (about 100–500 GPUs) and have researchers who want AI, but lack the staff to build their own service.</p>
+        </div>
+        <div class="who-item">
+          <span class="tag tag--muted">Next</span>
+          <h3>Other institutions with GPU clusters and sensitive data</h3>
+          <ul>
+            <li>Academic medical centers' research computing</li>
+            <li>National laboratories</li>
+            <li>Companies with simulation clusters and sensitive data, such as biotech, energy and aerospace</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTABand />
+</BaseLayout>
+
+<style>
+  .hero { padding-block: clamp(3.5rem, 8vw, 6.5rem) clamp(4rem, 9vw, 7rem); overflow: hidden; }
+  .hero h1 { margin-bottom: 1.4rem; }
+  .hero .lede { margin-bottom: 2.2rem; }
+  .hero-visual {
+    padding: clamp(1.5rem, 4vw, 2.75rem) clamp(0.75rem, 3vw, 2rem);
+    border-radius: 24px;
+    background: radial-gradient(120% 90% at 70% 0%, var(--accent-soft), var(--bg-soft) 60%);
+    border: 1px solid var(--line);
+  }
+
+  .insight { display: grid; gap: 3rem; }
+  @media (min-width: 960px) { .insight { grid-template-columns: 1fr 1.1fr; align-items: start; } }
+  .insight h2 { margin-bottom: 1.1rem; }
+  .insight .lede { margin-bottom: 1.5rem; }
+  .stats { display: grid; gap: 1rem; }
+  @media (min-width: 640px) { .stats { grid-template-columns: 1fr 1fr; } .stat--big, .stats-note { grid-column: 1 / -1; } }
+  .stat { padding: 1.5rem; border-radius: var(--radius); background: var(--dark-2); border: 1px solid rgb(231 237 245 / 0.08); }
+  .stat .n { font-family: var(--font-serif); font-size: 2.6rem; line-height: 1; color: var(--accent-on-dark); margin-bottom: 0.6rem; }
+  .stat--big .n { font-size: clamp(3.4rem, 7vw, 4.75rem); }
+  .stat p:last-child { color: var(--on-dark-2); font-size: 0.98rem; }
+
+  .steps { list-style: none; padding: 0; display: grid; gap: 1.5rem; margin-bottom: 2.5rem; counter-reset: s; }
+  @media (min-width: 860px) { .steps { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; } }
+  .steps li { border-top: 1px solid var(--line-strong); padding-top: 1.5rem; }
+  .steps h3 { margin: 0.9rem 0 0.5rem; }
+  .steps p { color: var(--ink-2); }
+  .step-n { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 600; font-size: 0.9rem; }
+
+  .who { align-items: start; }
+  .who h2 { margin-bottom: 1.1rem; }
+  .who .lede { margin-bottom: 1.5rem; }
+  .who-list { display: grid; gap: 1rem; }
+  .who-item { padding: 1.75rem; border: 1px solid var(--line); border-radius: var(--radius); }
+  .who-item.first { border-color: #bfe3de; background: var(--accent-soft); }
+  .who-item h3 { margin: 0.75rem 0 0.5rem; }
+  .who-item p, .who-item li { color: var(--ink-2); }
+  .who-item ul { padding-left: 1.1rem; display: grid; gap: 0.3rem; }
+</style>

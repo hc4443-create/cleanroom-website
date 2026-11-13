@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="glow" cx="0.85" cy="0" r="0.9">
+      <stop offset="0" stop-color="#5cd1c4" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#5cd1c4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0b1625"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- wordmark -->
+  <g transform="translate(80 86)">
+    <rect x="0" y="0" width="44" height="44" rx="10" fill="none" stroke="#e7edf5" stroke-width="2.5"/>
+    <rect x="9" y="9" width="11" height="11" rx="2.5" fill="#e7edf5" opacity="0.35"/>
+    <rect x="24" y="9" width="11" height="11" rx="2.5" fill="#5cd1c4"/>
+    <rect x="9" y="24" width="11" height="11" rx="2.5" fill="#5cd1c4"/>
+    <rect x="24" y="24" width="11" height="11" rx="2.5" fill="#e7edf5" opacity="0.35"/>
+    <text x="62" y="33" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="600" fill="#e7edf5">Cleanroom</text>
+  </g>
+
+  <!-- headline -->
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="62" fill="#ffffff">
+    <tspan x="80" y="300">Private AI on the</tspan>
+    <tspan x="80" y="378">GPU clusters you</tspan>
+    <tspan x="80" y="456">already own.</tspan>
+  </text>
+  <text x="80" y="540" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#a7b4c6">No new hardware · No per-use cloud bills · Data stays on campus</text>
+
+  <!-- memory grid motif: 3 GPUs x 6 blocks -->
+  <g transform="translate(790 170)">
+    <g>
+      <rect x="0" y="0" width="100" height="300" rx="14" fill="#13233a"/>
+      <rect x="16" y="246" width="68" height="32" rx="6" fill="#b7c2d1"/>
+      <rect x="16" y="206" width="68" height="32" rx="6" fill="#b7c2d1"/>
+      <rect x="16" y="166" width="68" height="32" rx="6" fill="#5cd1c4"/>
+      <rect x="16" y="126" width="68" height="32" rx="6" fill="#5cd1c4"/>
+      <rect x="16" y="86" width="68" height="32" rx="6" fill="#5cd1c4"/>
+      <rect x="16" y="46" width="68" height="32" rx="6" fill="none" stroke="#3a4d68" stroke-width="2" stroke-dasharray="5 5"/>
+    </g>
+    <g transform="translate(120 0)">
+      <rect x="0" y="0" width="100" height="300" rx="14" fill="#13233a"/>
+      <rect x="16" y="246" width="68" height="32" rx="6" fill="#b7c2d1"/>
+      <rect x="16" y="206" width="68" height="32" rx="6" fill="#5cd1c4"/>
+      <rect x="16" y="166" width="68" height="32" rx="6" fill="#5cd1c4"/>
+      <rect x="16" y="126" width="68" height="32" rx="6" fill="#5cd1c4"/>
+      <rect x="16" y="86" width="68" height="32" rx="6" fill="#5cd1c4"/>
+      <rect x="16" y="46" width="68" height="32" rx="6" fill="none" stroke="#3a4d68" stroke-width="2" stroke-dasharray="5 5"/>
+    </g>
+    <g transform="translate(240 0)">
+      <rect x="0" y="0" width="100" height="300" rx="14" fill="#13233a"/>
+      <rect x="16" y="246" width="68" height="32" rx="6" fill="#b7c2d1"/>
+      <rect x="16" y="206" width="68" height="32" rx="6" fill="#b7c2d1"/>
+      <rect x="16" y="166" width="68" height="32" rx="6" fill="#b7c2d1"/>
+      <rect x="16" y="126" width="68" height="32" rx="6" fill="#5cd1c4"/>
+      <rect x="16" y="86" width="68" height="32" rx="6" fill="#5cd1c4"/>
+      <rect x="16" y="46" width="68" height="32" rx="6" fill="none" stroke="#3a4d68" stroke-width="2" stroke-dasharray="5 5"/>
+    </g>
+  </g>
+</svg>

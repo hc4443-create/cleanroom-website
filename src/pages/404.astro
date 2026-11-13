@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SimpleMessage from '../components/SimpleMessage.astro';
+---
+<BaseLayout title="Page not found" noindex>
+  <SimpleMessage eyebrow="404" title="This page doesn't exist.">
+    <p>It may have moved, or the link may be mistyped.</p>
+  </SimpleMessage>
+</BaseLayout>

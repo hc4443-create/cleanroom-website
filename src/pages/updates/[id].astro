@@ -1,0 +1,32 @@
+---
+// The page for a single update post.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CTABand from '../../components/CTABand.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('updates', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const date = post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+---
+<BaseLayout title={post.data.title} description={post.data.summary}>
+  <article>
+    <header class="page-hero">
+      <div class="container">
+        <a href="/updates/" class="link-arrow small">← All updates</a>
+        <h1 style="margin-top:1.25rem">{post.data.title}</h1>
+        <p class="caption" style="margin-top:1rem"><time datetime={post.data.date.toISOString()}>{date}</time></p>
+      </div>
+    </header>
+    <div class="section">
+      <div class="container prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+  <CTABand />
+</BaseLayout>

@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import CTABand from '../components/CTABand.astro';
+
+const reasons = [
+  { title: 'Flexibility', text: 'Researchers want to work on the system itself, choose their model, and own it.' },
+  { title: 'Reproducibility', text: 'Keeping downloaded model weights makes research transparent and repeatable, since a cloud model can change or disappear.' },
+  { title: 'Price stability', text: "Commercial offerings change, prices are unpredictable, and researchers worry that expensive models won't stay affordable." },
+  { title: 'No usage caps', text: 'An in-house service can serve researchers indefinitely, including the small group who use it heavily.' },
+  { title: 'Efficiency', text: "One shared service handles many users at once, so researchers don't each have to request cluster time to run their own model." },
+  { title: 'Simple delivery', text: 'An API alone, with no chat interface, has worked well for researchers.' },
+];
+
+const benefits = [
+  { icon: 'lock', title: 'One secure AI service', text: 'A single service for all your researchers that works with the tools and code they already use.' },
+  { icon: 'badge', title: 'Campus login and grant billing', text: 'Researchers sign in with their campus credentials, and usage is billed to grants or departments.' },
+  { icon: 'shield', title: 'Rules by data type', text: 'Set rules for each type of data, so sensitive data stays on campus.' },
+  { icon: 'control', title: 'Choice and control over models', text: 'Choose your models, including open models whose weights your institution keeps, to support reproducible research.' },
+  { icon: 'infinity', title: 'No usage caps', text: 'Researchers can use the service as much as they need, with no per-request cloud bills.' },
+  { icon: 'chip', title: 'No new hardware', text: 'AI runs on GPUs the institution already owns.' },
+] as const;
+
+const options = [
+  { name: 'Cloud AI (AWS, Azure, Google Cloud)', limit: 'Billed per use, so automated research work gets expensive; data leaves campus' },
+  { name: 'Enterprise AI subscriptions', limit: 'Priced per person for chat; programmatic (API) use is billed separately per use' },
+  { name: 'Building an in-house service', limit: 'Requires dedicated staff and often new GPUs' },
+  { name: 'On-site AI platforms', limit: 'Assume dedicated AI hardware rather than reusing existing research clusters' },
+];
+---
+<BaseLayout
+  title="For institutions"
+  description="Cleanroom gives research computing centers a private, campus-wide AI service on the GPU clusters they already run: model control, reproducibility, campus login, grant billing and no new hardware."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">For institutions</span>
+      <h1>The control of an in-house AI service, on hardware you already own.</h1>
+      <p class="lede">Universities want campus AI enough to build it themselves. Cleanroom gives research computing centers the same control and flexibility, without buying new hardware or hiring a new team.</p>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">What institutions get</span>
+        <h2>What a campus AI service should offer</h2>
+      </div>
+      <div class="grid grid--3">
+        {benefits.map((b) => (
+          <article class="card">
+            <div class="icon"><Icon name={b.icon} /></div>
+            <h3>{b.title}</h3>
+            <p>{b.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY IN-HOUSE -->
+  <section class="section section--soft">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">What research computing teams told us</span>
+        <h2>Why universities keep AI in-house</h2>
+        <p class="lede">One university team that runs its own AI service told us they chose to build it, rather than buy cloud AI, to keep full control, even though the upfront investment was high. Here are the reasons they gave.</p>
+      </div>
+      <div class="reasons">
+        {reasons.map((r) => (
+          <div class="reason">
+            <h3>{r.title}</h3>
+            <p>{r.text}</p>
+          </div>
+        ))}
+      </div>
+      <div class="gap card">
+        <div>
+          <h3>The gap Cleanroom fills</h3>
+          <p>
+            Building that service took an existing data center, dedicated staff and a significant upfront investment.
+            Universities such as UC San Diego and the University of Michigan have built their own campus AI services, but
+            most universities don't have that capacity.
+          </p>
+        </div>
+        <p class="gap-answer">Cleanroom offers the same control and flexibility on hardware you already own, without building it yourself.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Who it's for</span>
+        <h2>Starting with research universities</h2>
+        <p class="lede">We're starting with mid-sized U.S. research universities, then expanding to other institutions that own GPU clusters and handle sensitive data.</p>
+      </div>
+      <div class="grid grid--2">
+        <article class="card who first">
+          <span class="tag">First</span>
+          <div class="icon"><Icon name="campus" /></div>
+          <h3>Research computing centers at mid-sized research universities</h3>
+          <p>These centers run shared clusters of about 100–500 GPUs and have researchers who want AI, but lack the staff to build their own service.</p>
+        </article>
+        <article class="card who">
+          <span class="tag tag--muted">Next</span>
+          <div class="icon"><Icon name="flask" /></div>
+          <h3>Other institutions with GPU clusters and sensitive data</h3>
+          <ul>
+            <li>Academic medical centers' research computing</li>
+            <li>National laboratories</li>
+            <li>Companies with simulation clusters and sensitive data, such as biotech, energy and aerospace</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="section section--soft">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Compared with the alternatives</span>
+        <h2>Other options charge per use, send data off campus, or need new hardware and staff.</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Option</th><th scope="col">Its limit for research institutions</th></tr>
+          </thead>
+          <tbody>
+            {options.map((o) => (
+              <tr><th scope="row">{o.name}</th><td>{o.limit}</td></tr>
+            ))}
+            <tr class="us">
+              <th scope="row">Cleanroom</th>
+              <td>Runs on hardware the institution already owns. For tasks that need the most capable commercial models, it can also send requests to the cloud, wherever the institution allows it.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <CTABand title="Run a research computing center?" text="We'd like to hear about your cluster and what your researchers need from AI." />
+</BaseLayout>
+
+<style>
+  .reasons { display: grid; gap: 2rem 2.5rem; margin-bottom: 3rem; }
+  @media (min-width: 720px) { .reasons { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .reasons { grid-template-columns: repeat(3, 1fr); } }
+  .reason { border-left: 2px solid var(--accent); padding-left: 1.25rem; }
+  .reason h3 { font-family: var(--font-sans); font-size: 1.02rem; font-weight: 600; letter-spacing: 0; margin-bottom: 0.35rem; }
+  .reason p { color: var(--ink-2); }
+
+  .gap { display: grid; gap: 1.5rem; }
+  @media (min-width: 900px) { .gap { grid-template-columns: 1.4fr 1fr; align-items: center; gap: 3rem; } }
+  .gap-answer { font-family: var(--font-serif); font-size: 1.35rem; line-height: 1.4; color: var(--accent-ink) !important; }
+
+  .who { position: relative; }
+  .who .tag { position: absolute; top: 1.5rem; right: 1.5rem; }
+  .who.first { background: var(--accent-soft); border-color: #bfe3de; }
+  .who ul { padding-left: 1.1rem; color: var(--ink-2); display: grid; gap: 0.3rem; }
+
+  tr.us > * { background: var(--accent-soft); }
+  tr.us th { color: var(--accent-ink); }
+</style>

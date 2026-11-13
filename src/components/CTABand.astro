@@ -1,0 +1,36 @@
+---
+// The closing "Talk to us" band used at the bottom of most pages.
+interface Props { title?: string; text?: string }
+const {
+  title = 'See what your cluster could offer your researchers.',
+  text = "We're looking for research computing teams to work with. In a first conversation, we'll compare notes on your cluster and what your researchers need from AI.",
+} = Astro.props;
+---
+<section class="section cta">
+  <div class="container">
+    <div class="box">
+      <div>
+        <h2>{title}</h2>
+        <p class="lede">{text}</p>
+      </div>
+      <div class="btn-row">
+        <a href="/contact/" class="btn btn--primary">Talk to us <span class="arrow" aria-hidden="true">→</span></a>
+        <a href="/how-it-works/" class="btn btn--secondary">How it works</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .box {
+    display: grid; gap: 2rem; align-items: end;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    border-radius: calc(var(--radius) + 6px);
+    background:
+      linear-gradient(135deg, var(--accent-soft), #f2f7fb 70%);
+    border: 1px solid #d5ebe8;
+  }
+  @media (min-width: 900px) { .box { grid-template-columns: 1.6fr 1fr; } .btn-row { justify-content: flex-end; } }
+  h2 { font-size: clamp(1.7rem, 3.2vw, 2.3rem); }
+  .lede { margin-top: 1rem; font-size: 1.08rem; }
+</style>

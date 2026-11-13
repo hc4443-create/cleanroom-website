@@ -1,0 +1,99 @@
+---
+import Logo from './Logo.astro';
+import { NAV } from '../config';
+import { getCollection } from 'astro:content';
+
+// The "Updates" link only appears once at least one update is published.
+const published = await getCollection('updates', ({ data }) => !data.draft);
+const links = published.length ? [...NAV, { label: 'Updates', href: '/updates/' }] : NAV;
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || path.startsWith(href);
+---
+<header class="site-header">
+  <div class="container bar">
+    <a href="/" class="home" aria-label="Cleanroom home"><Logo /></a>
+
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="sr-only">Menu</span>
+      <span class="burger" aria-hidden="true"><span></span><span></span></span>
+    </button>
+
+    <nav id="site-nav" class="nav" aria-label="Main">
+      <ul>
+        {links.map((l) => (
+          <li>
+            <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>
+          </li>
+        ))}
+      </ul>
+      <a href="/contact/" class="btn btn--primary nav-cta">Talk to us</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.menu-btn');
+  const header = document.querySelector('.site-header');
+  btn?.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    header?.classList.toggle('open', !open);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && header?.classList.contains('open')) {
+      header.classList.remove('open');
+      btn?.setAttribute('aria-expanded', 'false');
+      btn?.focus();
+    }
+  });
+  // Add a hairline border once the page scrolls.
+  const onScroll = () => header?.classList.toggle('scrolled', window.scrollY > 8);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgb(255 255 255 / 0.86);
+    backdrop-filter: saturate(160%) blur(12px);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .site-header.scrolled { border-bottom-color: var(--line); }
+  .bar { display: flex; align-items: center; justify-content: space-between; height: 4.25rem; }
+  .home { text-decoration: none; display: inline-flex; }
+
+  .nav { display: flex; align-items: center; gap: 2rem; }
+  .nav ul { display: flex; gap: 1.75rem; list-style: none; padding: 0; }
+  .nav ul a { color: var(--ink-2); text-decoration: none; font-size: 0.95rem; font-weight: 500; }
+  .nav ul a:hover, .nav ul a[aria-current='page'] { color: var(--ink); }
+  .nav ul a[aria-current='page'] { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 0.5em; }
+  .nav-cta { min-height: 2.5rem; padding: 0.5rem 1.1rem; font-size: 0.92rem; }
+
+  .menu-btn { display: none; background: none; border: 0; padding: 0.6rem; margin-right: -0.6rem; cursor: pointer; }
+  .burger { display: grid; gap: 6px; width: 22px; }
+  .burger span { height: 1.6px; background: var(--ink); border-radius: 2px; transition: transform 0.2s; }
+  .open .burger span:first-child { transform: translateY(3.8px) rotate(45deg); }
+  .open .burger span:last-child { transform: translateY(-3.8px) rotate(-45deg); }
+
+  @media (max-width: 899px) {
+    .menu-btn { display: block; }
+    .nav {
+      display: none;
+      position: absolute; top: 4.25rem; left: 0; right: 0;
+      flex-direction: column; align-items: stretch; gap: 1rem;
+      padding: 1rem var(--gutter) 1.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 16px 24px -16px rgb(14 26 43 / 0.15);
+    }
+    .open .nav { display: flex; }
+    .nav ul { flex-direction: column; gap: 0; }
+    .nav ul a { display: block; padding: 0.8rem 0; font-size: 1.05rem; border-bottom: 1px solid var(--line); }
+    .nav ul a[aria-current='page'] { text-decoration: none; color: var(--accent); }
+    .nav-cta { min-height: 2.9rem; }
+  }
+</style>
