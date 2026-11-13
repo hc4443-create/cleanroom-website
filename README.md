@@ -42,7 +42,7 @@ npm run dev
 Open **http://localhost:4321** in your browser. Leave Terminal running: every time you
 save a file, the browser updates automatically. Press `Ctrl + C` in Terminal to stop.
 
-> The contact and mailing-list forms only work on the live (Netlify) site, not in
+> The contact form only works on the live (Netlify) site, not in
 > the local preview. That's expected.
 
 ---
@@ -111,7 +111,7 @@ watches GitHub. Every time you save a change to GitHub, Netlify updates the live
 2. Trigger a fresh deploy: **Deploys → Trigger deploy → Deploy site**.
 3. To get an email for each submission: **Site configuration → Notifications → Emails and webhooks →
    Form submission notifications → Add notification → Email notification**, then pick the `contact` form.
-4. Mailing-list signups appear under **Forms → updates**, where you can also export them.
+4. Messages appear under **Forms → contact**, where you can also export them.
 5. Test it: send yourself a message through the live contact form.
 
 ### Step D: Get found on Google
@@ -149,6 +149,13 @@ computer, so you start from the latest version.
 
 If a deploy fails, Netlify keeps the previous version live, so a broken edit never takes the site down.
 Open the failed deploy in Netlify to read the error.
+
+### Bringing back the mailing-list signup
+The signup form was removed for now but is kept in `src/components/NewsletterForm.astro`.
+To show it again, add `<NewsletterForm id="footer" dark />` back to `src/components/Footer.astro`
+(and import it at the top), and recreate a "subscribed" thank-you page (or ask Claude to).
+Signups would then appear in Netlify under **Forms → updates**. Remember that you'd need to email
+subscribers yourself, ideally through a newsletter tool that handles unsubscribes.
 
 ## 6. Check before publishing
 

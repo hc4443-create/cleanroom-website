@@ -14,22 +14,18 @@ const updated = 'November 2026';
   <section class="section">
     <div class="container prose">
       <h2>What we collect</h2>
-      <p>We only collect what you choose to send us:</p>
-      <ul>
-        <li><strong>Contact form:</strong> your name, email, institution, role and message.</li>
-        <li><strong>Mailing list:</strong> your email address.</li>
-      </ul>
+      <p>We only collect what you choose to send us through our contact form: your name, email, institution, role and message.</p>
       <p>This site does not use advertising or tracking cookies.</p>
 
       <h2>How we use it</h2>
-      <p>We use your information only to reply to you and, if you subscribed, to send occasional updates about Cleanroom. We do not sell or share it with third parties for marketing.</p>
+      <p>We use your information only to reply to you. We do not add you to a mailing list, and we do not sell or share your information with third parties for marketing.</p>
 
       <h2>Where it is stored</h2>
       <p>The website and its forms are hosted by Netlify, which stores form submissions on our behalf. Like most web hosts, Netlify may keep basic technical logs (such as IP addresses) to run and secure the service.</p>
 
       <h2>Your choices</h2>
       <p>
-        You can ask us to remove you from the mailing list or delete your information at any time
+        You can ask us to delete your information at any time
         {SITE.email ? <>by emailing <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</> : <>through our <a href="/contact/">contact form</a>.</>}
       </p>
     </div>

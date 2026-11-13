@@ -1,8 +1,9 @@
 ---
 import Logo from './Logo.astro';
-import NewsletterForm from './NewsletterForm.astro';
 import { NAV, SITE } from '../config';
 const year = new Date().getFullYear();
+// A mailing-list signup used to sit here. To bring it back, see
+// src/components/NewsletterForm.astro (the form itself is kept for later).
 ---
 <footer class="site-footer dark">
   <div class="container">
@@ -11,10 +12,9 @@ const year = new Date().getFullYear();
         <Logo inverted />
         <p class="muted">{SITE.tagline}</p>
       </div>
-      <div class="signup">
-        <h2 class="h">Stay updated</h2>
-        <p class="muted small">Occasional notes on our research and progress. No spam.</p>
-        <NewsletterForm id="footer" dark />
+      <div class="talk">
+        <p class="muted">Run a research cluster, or want to learn more?</p>
+        <a href="/contact/" class="btn btn--secondary">Talk to us <span class="arrow" aria-hidden="true">→</span></a>
       </div>
     </div>
 
@@ -36,11 +36,10 @@ const year = new Date().getFullYear();
 
 <style>
   .site-footer { padding-block: clamp(3.5rem, 7vw, 5rem) 2.5rem; }
-  .top { display: grid; gap: 2.5rem; padding-bottom: 3rem; border-bottom: 1px solid rgb(231 237 245 / 0.12); }
-  @media (min-width: 860px) { .top { grid-template-columns: 1fr 1fr; } }
+  .top { display: grid; gap: 2rem; padding-bottom: 3rem; border-bottom: 1px solid rgb(231 237 245 / 0.12); }
+  @media (min-width: 860px) { .top { grid-template-columns: 1fr auto; align-items: end; } }
   .brand p { margin-top: 0.9rem; max-width: 22rem; }
-  .h { font-family: var(--font-sans); font-size: 1.05rem; font-weight: 600; letter-spacing: 0; }
-  .signup p { margin: 0.35rem 0 1rem; }
+  .talk { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.25rem; }
   .bottom { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; justify-content: space-between; align-items: center; padding-top: 1.75rem; }
   .bottom ul { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; list-style: none; padding: 0; }
   .bottom ul a { color: var(--on-dark-2); text-decoration: none; font-size: 0.92rem; }

@@ -112,7 +112,7 @@ import { CLUSTER_STUDY, CLUSTER_FINDINGS, STUDIES } from '../data/research';
   .finding p:last-child { color: var(--ink-2); font-size: 0.95rem; }
   .finding.lead { background: var(--accent-soft); border-color: #bfe3de; }
   .finding.lead .n { color: var(--accent-ink); }
-  @media (min-width: 960px) { .finding.lead { grid-row: span 2; display: flex; flex-direction: column; justify-content: flex-end; } .finding.lead .n { font-size: 4rem; } }
+  @media (min-width: 1100px) { .findings { grid-template-columns: repeat(5, 1fr); } }
 
   .heat { align-items: center; }
   .heat h2 { margin-bottom: 1.1rem; }

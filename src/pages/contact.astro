@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ContactForm from '../components/ContactForm.astro';
-import NewsletterForm from '../components/NewsletterForm.astro';
 import { SITE } from '../config';
 ---
 <BaseLayout
@@ -28,16 +27,6 @@ import { SITE } from '../config';
       </div>
     </div>
   </section>
-
-  <section class="section section--soft section--tight">
-    <div class="container news">
-      <div>
-        <h2>Not ready to talk yet?</h2>
-        <p class="muted">Get occasional updates on our research and progress.</p>
-      </div>
-      <NewsletterForm id="contact" />
-    </div>
-  </section>
 </BaseLayout>
 
 <style>
@@ -49,7 +38,5 @@ import { SITE } from '../config';
   .who strong { color: var(--ink); font-weight: 600; }
   .email { margin-top: 2rem; }
   .form-card { box-shadow: var(--shadow); }
-  .news { display: grid; gap: 1.5rem; align-items: center; }
-  @media (min-width: 860px) { .news { grid-template-columns: 1fr 1fr; } }
-  .news h2 { font-size: 1.6rem; margin-bottom: 0.4rem; }
+  .contact { padding-bottom: clamp(4rem, 9vw, 6.5rem); }
 </style>
