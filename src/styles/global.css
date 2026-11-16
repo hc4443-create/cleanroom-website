@@ -41,7 +41,7 @@
   --accent-on-dark: var(--accent);
 
   /* Memory-grid motif colors */
-  --mem-job: #4a5059;
+  --mem-job: #5f6670;         /* job memory: ~3:1 on the dark canvas */
   --mem-ai: var(--accent);
   --mem-back: #f5b14c;      /* memory handed back to a job */
 
@@ -141,6 +141,7 @@ p { text-wrap: pretty; }
 .prose { max-width: 42rem; }
 .prose > * + * { margin-top: 1.1rem; }
 .prose h2 { margin-top: 2.5rem; font-size: 1.6rem; }
+.prose > :first-child { margin-top: 0; }
 .prose h3 { margin-top: 2rem; }
 .prose ul { padding-left: 1.2rem; }
 .prose li + li { margin-top: 0.4rem; }
@@ -158,11 +159,19 @@ p { text-wrap: pretty; }
 
 /* Hairline grid: cells divided by 1px lines, no card boxes */
 .lines { display: grid; border-top: 1px solid var(--line); }
-.lines > * { padding: clamp(1.5rem, 3vw, 2.25rem) clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 2.25rem) 0; border-bottom: 1px solid var(--line); }
+.lines > * { padding-block: clamp(1.5rem, 3vw, 2.25rem); border-bottom: 1px solid var(--line); }
+/* Side padding only where a cell meets a divider, so single columns and
+   outer edges stay flush with the text column. */
 @media (min-width: 720px) {
   .lines--2 { grid-template-columns: repeat(2, 1fr); }
+  .lines--2 > *:nth-child(2n) { padding-left: clamp(1.25rem, 2.5vw, 2rem); border-left: 1px solid var(--line); }
+  .lines--2 > *:nth-child(2n + 1) { padding-right: clamp(1.25rem, 2.5vw, 2rem); }
+}
+/* Three columns only once each column has room (stacked below). */
+@media (min-width: 960px) {
   .lines--3 { grid-template-columns: repeat(3, 1fr); }
-  .lines--2 > *:nth-child(2n), .lines--3 > *:not(:nth-child(3n + 1)) { padding-left: clamp(1.25rem, 2.5vw, 2rem); border-left: 1px solid var(--line); }
+  .lines--3 > *:not(:nth-child(3n + 1)) { padding-left: clamp(1.25rem, 2.5vw, 2rem); border-left: 1px solid var(--line); }
+  .lines--3 > *:not(:nth-child(3n)) { padding-right: clamp(1.25rem, 2.5vw, 2rem); }
 }
 .lines h3 { margin-bottom: 0.5rem; }
 .lines .num { display: block; font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-3); margin-bottom: 1.25rem; }

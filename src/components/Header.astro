@@ -85,7 +85,8 @@ const isCurrent = (href: string) => path === href || path.startsWith(href);
   .open .burger span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
 
   @media (max-width: 899px) {
-    .menu-btn { display: block; }
+    .menu-btn { display: grid; place-items: center; min-width: 2.75rem; min-height: 2.75rem; padding: 0; margin-right: -0.6rem; }
+    .nav-cta { min-height: 2.75rem; }
     .actions { margin-left: auto; }
     .nav {
       display: none;

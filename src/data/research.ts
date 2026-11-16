@@ -1,7 +1,6 @@
 // ─────────────────────────────────────────────────────────────
 //  RESEARCH DATA: every number on the site comes from here.
-//  Only published, citable sources. Our own cluster measurements
-//  are deliberately left off the site.
+//  Only published, citable sources.
 // ─────────────────────────────────────────────────────────────
 
 export type Source = {
@@ -17,7 +16,7 @@ export const SOURCES = {
   li2023: {
     id: 'li2023',
     authors: 'Li, Michelogiannakis, Cook, Cooray and Chen',
-    title: "Analyzing Resource Utilization in an HPC System: A Case Study of NERSC's Perlmutter",
+    title: "Analyzing Resource Utilization in an HPC System: A Case Study of NERSC’s Perlmutter",
     venue: 'ISC High Performance 2023, LNCS vol. 13948, pp. 297–316',
     url: 'https://link.springer.com/chapter/10.1007/978-3-031-32041-5_16',
     preprint: 'https://arxiv.org/pdf/2301.05145',
@@ -26,7 +25,7 @@ export const SOURCES = {
     id: 'sencan2025',
     authors: 'Sencan, Kulkarni, Coskun and Konate',
     title: 'Analyzing GPU Utilization in HPC Workloads: Insights from Large-Scale Systems',
-    venue: "PEARC '25 (ACM)",
+    venue: 'PEARC ’25 (ACM)',
     url: 'https://www.bu.edu/peaclab/files/2025/07/GPU_Utilization_Analysis_PEARC25.pdf',
     preprint: null,
   },
@@ -45,6 +44,13 @@ export const SOURCES = {
     venue: 'arXiv 2412.19437',
     url: 'https://arxiv.org/abs/2412.19437',
     preprint: null,
+  },
+  deepseekInfra: {
+    id: 'deepseekInfra',
+    authors: 'DeepSeek-AI',
+    title: 'DeepSeek-V3/R1 Inference System Overview',
+    venue: 'Open Infra Index, February 2025',
+    url: 'https://github.com/deepseek-ai/open-infra-index/blob/main/202502OpenSourceWeek/day_6_one_more_thing_deepseekV3R1_inference_system_overview.md',
   },
   tpc26: {
     id: 'tpc26',
@@ -78,19 +84,19 @@ export const IDLE_MEMORY = [
     stat: '~50%',
     label: 'of GPU jobs on NERSC’s Perlmutter used a quarter of GPU memory or less',
     source: SOURCES.li2023,
-    short: 'Li et al., ISC 2023',
+    short: 'Li et al., ISC ’23',
   },
   {
     stat: '28.6%',
     label: 'average peak GPU memory use across 118,276 HPC jobs',
     source: SOURCES.sencan2025,
-    short: "Sencan et al., PEARC '25",
+    short: 'Sencan et al., PEARC ’25',
   },
   {
     stat: '37%',
     label: 'of jobs in that study never used more than 15% of GPU memory',
     source: SOURCES.sencan2025,
-    short: "Sencan et al., PEARC '25",
+    short: 'Sencan et al., PEARC ’25',
   },
 ];
 
@@ -100,19 +106,19 @@ export const BUSY_BUT_EMPTY = [
     stat: '63%',
     label: 'of jobs in the same 118,276-job study pushed GPU utilization to 75% or higher, together covering 80% of GPU node-hours',
     source: SOURCES.sencan2025,
-    short: "Sencan et al., PEARC '25",
+    short: 'Sencan et al., PEARC ’25',
   },
   {
     stat: '1 GB of 96 GB',
     label: 'of GPU memory was enough for the docking code AutoDock on a Grace Hopper GPU',
     source: SOURCES.kth2026,
-    short: "Schieffer et al., ISC '26",
+    short: 'Schieffer et al., ISC ’26',
   },
   {
     stat: '1.4×',
     label: 'throughput, and 26% less energy on average, when HPC codes shared a GPU instead of running one after another',
     source: SOURCES.kth2026,
-    short: "Schieffer et al., ISC '26",
+    short: 'Schieffer et al., ISC ’26',
   },
 ];
 

@@ -6,31 +6,32 @@ import { SITE } from '../config';
 
 // job = % of the GPU's memory the host job uses; ai = % holding model weights.
 const nodes = [
-  { name: 'gpu-a014', gpu: 'H100 80GB', job: 18, ai: 64, code: 'nekrs' },
-  { name: 'gpu-a021', gpu: 'H100 80GB', job: 34, ai: 50, code: 'gromacs', reclaim: true },
-  { name: 'gpu-b007', gpu: 'A100 80GB', job: 9, ai: 72, code: 'autodock' },
-  { name: 'gpu-b019', gpu: 'A100 80GB', job: 46, ai: 38, code: 'openfoam' },
-  { name: 'gpu-c003', gpu: 'A100 40GB', job: 22, ai: 58, code: 'lammps' },
-  { name: 'gpu-c011', gpu: 'idle', job: 0, ai: 84, code: '—' },
+  { name: 'gpu-a014', gpu: 'H100 80GB', gb: 80, job: 18, ai: 64, code: 'nekrs' },
+  { name: 'gpu-a021', gpu: 'H100 80GB', gb: 80, job: 34, ai: 50, code: 'gromacs', reclaim: true },
+  { name: 'gpu-b007', gpu: 'A100 80GB', gb: 80, job: 9, ai: 72, code: 'autodock' },
+  { name: 'gpu-b019', gpu: 'A100 80GB', gb: 80, job: 46, ai: 38, code: 'openfoam' },
+  { name: 'gpu-c003', gpu: 'A100 40GB', gb: 40, job: 22, ai: 58, code: 'lammps' },
+  { name: 'gpu-c011', gpu: 'idle', gb: 80, job: 0, ai: 84, code: '—', idle: true },
 ];
 
 const log = [
-  { t: '14:02:11', msg: 'gpu-a021 · host job grew, 12 GB returned', kind: 'reclaim' },
-  { t: '14:02:11', msg: 'deepseek-v3 · requests served without interruption', kind: 'route' },
-  { t: '14:01:47', msg: 'gpu-c011 · idle GPU joined pool', kind: 'join' },
-  { t: '14:01:02', msg: 'gpu-b019 · governor eased compute share', kind: 'gov' },
-  { t: '14:00:38', msg: 'batch job ‘lit-review’ · 18,400 requests queued', kind: 'route' },
+  { t: '14:02:11', msg: 'gpu-a021 · 12 GB back to job', kind: 'reclaim' },
+  { t: '14:02:11', msg: 'deepseek-v3 · no interruption', kind: 'route' },
+  { t: '14:01:47', msg: 'gpu-c011 · idle GPU joined', kind: 'join' },
+  { t: '14:01:02', msg: 'gpu-b019 · governor eased', kind: 'gov' },
+  { t: '14:00:38', msg: 'lit-review · 18,400 queued', kind: 'route' },
 ];
 
 const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
 ---
-<figure class="console" role="img" aria-label={`Product illustration of the ${SITE.name} console, with example figures: spare GPU memory across a cluster holding large AI models, and one GPU handing memory back to its job.`}>
+<div class="console paused" data-live>
+<figure class="fig" role="img" aria-label={`Product illustration of the ${SITE.name} console, with example figures: spare GPU memory across a cluster holding large AI models, and one GPU handing memory back to its job.`}>
   <div class="glow" aria-hidden="true"></div>
   <div class="frame" aria-hidden="true">
     <div class="titlebar">
       <span class="dots"><i></i><i></i><i></i></span>
       <span class="crumb">cluster-east <span>/</span> Overview</span>
-      <span class="live"><i></i>Live</span>
+      <span class="live"><i></i><span data-live-label>Live</span></span>
     </div>
 
     <div class="body">
@@ -52,15 +53,15 @@ const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
           <div><p class="k">Spare memory pooled</p><p class="v">1.42 <small>TB</small></p></div>
           <div><p class="k">Models served</p><p class="v">3</p></div>
           <div><p class="k">Host jobs</p><p class="v v--ok"><i></i>Within budget</p></div>
-          <div><p class="k">Requests today</p><p class="v">214k</p></div>
+          <div><p class="k">Requests today</p><p class="v" data-requests>214,380</p></div>
         </div>
 
         <div class="panels">
           <div class="panel nodes">
-            <div class="panel-h"><span>GPU memory</span><span class="legend"><i class="lj"></i>Host job <i class="la"></i>Model <i class="lf"></i>Free</span></div>
+            <div class="panel-h"><span>GPU memory</span><span class="legend"><i class="lj"></i>Host job <i class="la"></i>Model <span class="free-k"><i class="lf"></i>Free</span></span></div>
             <ul>
               {nodes.map((n) => (
-                <li class:list={{ reclaim: n.reclaim }}>
+                <li class:list={{ reclaim: n.reclaim }} data-node={n.name} data-gb={n.gb} data-idle={n.idle ? '' : undefined}>
                   <span class="nm">{n.name}</span>
                   <span class="meta">{n.gpu}</span>
                   <span class="bar" style={`--job:${n.job}%;--ai:${n.ai}%`}>
@@ -74,7 +75,7 @@ const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
 
           <div class="panel activity">
             <div class="panel-h"><span>Activity</span></div>
-            <ol>
+            <ol data-log>
               {log.map((l) => (
                 <li><span class="t">{l.t}</span><span class:list={['m', l.kind]}>{l.msg}</span></li>
               ))}
@@ -84,11 +85,113 @@ const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
       </div>
     </div>
   </div>
-  <figcaption class="caption">Product illustration. Figures are examples.</figcaption>
 </figure>
+  <div class="cap">
+    <p class="caption">Product illustration. Figures are examples.</p>
+    <button type="button" class="toggle" data-toggle hidden>Pause animation</button>
+  </div>
+</div>
+
+<script>
+  // Makes the illustration feel live: new activity slides in, the request
+  // counter adds up what the feed reports, and a different GPU takes memory
+  // back each cycle. It runs for about 20 seconds while on screen, can be
+  // paused or replayed, and stays still for visitors who prefer less motion.
+  const root = document.querySelector<HTMLElement>('[data-live]');
+  if (root && 'IntersectionObserver' in window) {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const log = root.querySelector<HTMLOListElement>('[data-log]')!;
+    const counter = root.querySelector<HTMLElement>('[data-requests]')!;
+    const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]')!;
+    const rows = [...root.querySelectorAll<HTMLLIElement>('[data-node]')].filter((r) => !('idle' in r.dataset));
+    const MAX_TICKS = 11;         // three reclaim cycles, each allowed to finish, then it rests
+    let requests = 214380;
+    let clock = 14 * 3600 + 2 * 60 + 11;
+    let tick = 0;
+    let rowIndex = Math.max(0, rows.findIndex((r) => r.classList.contains('reclaim')));
+    let timer: number | undefined;
+    let onScreen = false;
+    let userPaused = false;
+
+    const time = () =>
+      [Math.floor(clock / 3600), Math.floor((clock % 3600) / 60), clock % 60]
+        .map((n) => String(n).padStart(2, '0')).join(':');
+    const push = (msg: string, kind: string) => {
+      const li = document.createElement('li');
+      li.className = 'new';
+      const t = document.createElement('span'); t.className = 't'; t.textContent = time();
+      const m = document.createElement('span'); m.className = `m ${kind}`; m.textContent = msg;
+      li.append(t, m);
+      log.prepend(li);
+      while (log.children.length > 5) log.lastElementChild?.remove();
+    };
+    // Varied events, in the same voice as the opening feed.
+    const events: (() => [string, string])[] = [
+      () => { const n = 400 + Math.floor(Math.random() * 1400); requests += n; return [`deepseek-v3 · ${n.toLocaleString('en-US')} served`, 'route']; },
+      () => { const n = 200 + Math.floor(Math.random() * 900); requests += n; return [`qwen3-235b · ${n.toLocaleString('en-US')} served`, 'route']; },
+      () => ['gpu-c011 · idle GPU joined', 'join'],
+      () => { const n = 300 + Math.floor(Math.random() * 600); requests += n; return [`gpt-oss-120b · ${n.toLocaleString('en-US')} served`, 'route']; },
+      () => ['gpu-b019 · governor eased', 'gov'],
+    ];
+
+    const step = () => {
+      // Stop one tick after the last event, so the final reclaim animation finishes.
+      if (tick >= MAX_TICKS) { stop(true); return; }
+      tick++;
+      clock += 4 + Math.floor(Math.random() * 8);
+      if (tick % 3 === 0) {
+        // Hand the reclaim animation to the next busy GPU. The bar grows by
+        // 15% of the GPU, so the log reports the matching number of GB.
+        rows[rowIndex]?.classList.remove('reclaim');
+        rowIndex = (rowIndex + 1) % rows.length;
+        const row = rows[rowIndex];
+        void row.offsetWidth; // restart the CSS animation
+        row.classList.add('reclaim');
+        push(`${row.dataset.node} · ${Math.round(0.15 * Number(row.dataset.gb))} GB back to job`, 'reclaim');
+      } else {
+        const [msg, kind] = events[(tick - 1) % events.length]();
+        push(msg, kind);
+      }
+      counter.textContent = requests.toLocaleString('en-US');
+    };
+
+    const running = () => timer !== undefined;
+    const start = () => {
+      if (running() || userPaused || motion.matches || !onScreen || tick >= MAX_TICKS) return;
+      root.classList.remove('paused');
+      timer = window.setInterval(step, 2200);
+      toggle.textContent = 'Pause animation';
+    };
+    function stop(finished = false) {
+      if (timer !== undefined) { clearInterval(timer); timer = undefined; }
+      root.classList.add('paused');
+      if (finished) toggle.textContent = 'Replay animation';
+    }
+
+    // The server renders the console as `paused`, so the "Live" dot glows only while it runs.
+    const liveLabel = root.querySelector<HTMLElement>('[data-live-label]')!;
+    toggle.hidden = motion.matches;
+    toggle.addEventListener('click', () => {
+      if (running()) { userPaused = true; stop(); root.classList.add('user-paused'); liveLabel.textContent = 'Paused'; toggle.textContent = 'Play animation'; return; }
+      root.classList.remove('user-paused'); liveLabel.textContent = 'Live';
+      userPaused = false;
+      if (tick >= MAX_TICKS) tick = 0;
+      start();
+      if (running()) step(); // respond at once rather than after the first interval
+    });
+    motion.addEventListener('change', () => {
+      toggle.hidden = motion.matches;
+      if (motion.matches) stop(); else start();
+    });
+    new IntersectionObserver(([e]) => {
+      onScreen = e.isIntersecting;
+      if (onScreen) start(); else stop();
+    }).observe(root);
+  }
+</script>
 
 <style>
-  .console { position: relative; }
+  .console, .fig { position: relative; }
   .glow {
     position: absolute; inset: -12% -6% 10%;
     background:
@@ -110,7 +213,15 @@ const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
     -webkit-mask-image: linear-gradient(180deg, #000 88%, transparent);
     mask-image: linear-gradient(180deg, #000 88%, transparent);
   }
-  .caption { position: relative; margin-top: 0.75rem; text-align: center; }
+  /* Phones: the frame is short, so fade only the last sliver and keep every GPU row legible */
+  @media (max-width: 699px) {
+    .frame { -webkit-mask-image: linear-gradient(180deg, #000 96%, transparent); mask-image: linear-gradient(180deg, #000 96%, transparent); }
+  }
+  .cap { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 1rem; margin-top: 0.45rem; text-align: center; }
+  .toggle { white-space: nowrap; min-height: 2.75rem; background: none; border: 0; padding: 0.45rem 0.65rem; margin-block: 0; font-size: 0.82rem; color: var(--ink-3); text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: var(--line-strong); cursor: pointer; }
+  .toggle:hover { color: var(--ink); }
+  /* Off screen, paused or finished: CSS animations rest too */
+  .paused .reclaim .bar .j, .paused .reclaim .bar .a { animation-play-state: paused; }
 
   .titlebar { display: flex; align-items: center; gap: 1rem; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--line); background: rgb(255 255 255 / 0.015); }
   .dots { display: flex; gap: 6px; }
@@ -118,7 +229,11 @@ const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
   .crumb { color: var(--ink-3); }
   .crumb span { margin-inline: 0.3rem; opacity: 0.6; }
   .live { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); }
-  .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); transition: background-color 0.3s, box-shadow 0.3s; }
+  /* Steady dot when resting; it glows only while animating; grey "Paused" if the visitor paused it */
+  .paused .live i { box-shadow: none; }
+  .user-paused .live { color: var(--ink-3); }
+  .user-paused .live i { background: var(--ink-3); }
 
   .body { display: grid; }
   @media (min-width: 900px) { .body { grid-template-columns: 11.5rem 1fr; } }
@@ -137,6 +252,9 @@ const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
   .main { padding: 1rem; display: grid; gap: 1rem; min-width: 0; }
   .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
   @media (min-width: 1100px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
+  /* Very narrow phones: one KPI per row, and a shorter legend */
+  .free-k { display: inline-flex; align-items: center; gap: 0.4rem; }
+  @media (max-width: 359px) { .kpis { grid-template-columns: 1fr; } .free-k { display: none; } }
   .kpis > div { padding: 0.75rem 0.85rem; border: 1px solid var(--line); border-radius: 10px; background: rgb(255 255 255 / 0.02); }
   .k { font-size: 0.7rem; color: var(--ink-3); margin-bottom: 0.3rem; }
   .v { font-size: 1.25rem; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
@@ -145,9 +263,10 @@ const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
   .v--ok i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
 
   .panels { display: grid; gap: 1rem; }
-  @media (min-width: 1100px) { .panels { grid-template-columns: 1.7fr 1fr; } }
+  @media (min-width: 1100px) { .panels { grid-template-columns: 1.4fr 1fr; } }
   .panel { border: 1px solid var(--line); border-radius: 10px; background: rgb(255 255 255 / 0.015); min-width: 0; }
   .panel-h { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--line); color: var(--ink); font-weight: 550; }
+  .panel-h > span:first-child, .legend { white-space: nowrap; }
   .legend { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 400; font-size: 0.68rem; color: var(--ink-3); }
   .legend i { width: 8px; height: 8px; border-radius: 2px; margin-left: 0.35rem; }
   .lj { background: var(--mem-job); } .la { background: var(--accent); } .lf { box-shadow: inset 0 0 0 1px var(--line-strong); }
@@ -164,20 +283,24 @@ const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
   /* Static cue (also shown with reduced motion): this GPU's job is taking memory back */
   .reclaim .code { color: var(--mem-back); }
   .reclaim .bar .j { box-shadow: inset -2px 0 0 var(--mem-back); }
-  .reclaim .bar .j { animation: grow 6s ease-in-out infinite; }
-  .reclaim .bar .a { animation: shrink 6s ease-in-out infinite; }
-  @keyframes grow { 0%, 30% { width: var(--job); } 45%, 80% { width: calc(var(--job) + 15%); } 95%, 100% { width: var(--job); } }
-  @keyframes shrink { 0%, 30% { width: var(--ai); } 45%, 80% { width: calc(var(--ai) - 15%); } 95%, 100% { width: var(--ai); } }
+  .reclaim .bar .j { animation: grow 6.6s ease-in-out infinite; }
+  .reclaim .bar .a { animation: shrink 6.6s ease-in-out infinite; }
+  @keyframes grow { 0% { width: var(--job); } 15%, 75% { width: calc(var(--job) + 15%); } 95%, 100% { width: var(--job); } }
+  @keyframes shrink { 0% { width: var(--ai); } 15%, 75% { width: calc(var(--ai) - 15%); } 95%, 100% { width: var(--ai); } }
 
   .activity { display: none; }
   @media (min-width: 700px) { .activity { display: block; } }
-  .activity ol { list-style: none; padding: 0.35rem 0; }
-  .activity li { display: grid; grid-template-columns: 4.2rem 1fr; gap: 0.5rem; padding: 0.4rem 0.85rem; font-size: 0.72rem; }
-  .t { font-family: var(--font-mono); color: var(--ink-3); }
-  .m { color: var(--ink-2); }
-  .m::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 0.45rem; vertical-align: 1px; background: var(--ink-3); }
-  .m.reclaim::before { background: #f5b14c; }
-  .m.join::before, .m.route::before { background: var(--accent); }
+  /* Fixed height and one line per entry, so new entries never move the page */
+  .activity ol { list-style: none; padding: 0.35rem 0; height: calc(5 * 1.9rem + 0.7rem); overflow: hidden; }
+  .activity :global(li.new) { animation: log-in 0.45s ease both; }
+  @keyframes log-in { from { transform: translateY(-6px); background: rgb(92 209 196 / 0.08); } }
+  .activity :global(li) { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr); gap: 0.5rem; height: 1.9rem; align-items: center; padding: 0 0.85rem; font-size: 0.72rem; }
+  /* :global so entries added by the script are styled like the first ones */
+  .activity :global(.t) { font-family: var(--font-mono); color: var(--ink-3); }
+  .activity :global(.m) { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .activity :global(.m)::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 0.45rem; vertical-align: 1px; background: var(--ink-3); }
+  .activity :global(.m.reclaim)::before { background: #f5b14c; }
+  .activity :global(.m.join)::before, .activity :global(.m.route)::before { background: var(--accent); }
 
   @media (prefers-reduced-motion: reduce) {
     .reclaim .bar .j, .reclaim .bar .a { animation: none; }

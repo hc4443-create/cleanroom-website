@@ -12,7 +12,7 @@ const updated = 'November 2026';
     </div>
   </section>
   <section class="section">
-    <div class="container prose">
+    <div class="container"><div class="prose">
       <h2>What we collect</h2>
       <p>We only collect what you choose to send us through our contact form: your name, email, organization, role and message.</p>
       <p>This site does not use advertising or tracking cookies.</p>
@@ -25,9 +25,9 @@ const updated = 'November 2026';
 
       <h2>Your choices</h2>
       <p>
-        You can ask us to delete your information at any time
+        You can ask us to delete your information at any time{' '}
         {SITE.email ? <>by emailing <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</> : <>through our <a href="/contact/">contact form</a>.</>}
       </p>
-    </div>
+    </div></div>
   </section>
 </BaseLayout>
