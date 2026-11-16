@@ -7,7 +7,7 @@ export const SITE = {
   name: 'Enkhora',
 
   // The web address of the live site. Change this when you get a domain
-  // (for example 'https://enkhora.com'). It's used for search engines and
+  // (for example 'https://enkhora.ai'). It's used for search engines and
   // social-share previews.
   url: 'https://enkhora.ai',
 
@@ -18,7 +18,7 @@ export const SITE = {
   tagline: 'Your GPUs are busy. The memory inside them isn’t.',
 
   // Contact email. Leave it empty ('') to hide email links; the contact
-  // form still works either way. Example: 'hello@enkhora.com'
+  // form still works either way. Example: 'hello@enkhora.ai'
   email: '',
 
   // Public source-code repository for the open-source core. When set, a
