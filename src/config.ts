@@ -9,7 +9,7 @@ export const SITE = {
   // The web address of the live site. Change this when you get a domain
   // (for example 'https://enkhora.com'). It's used for search engines and
   // social-share previews.
-  url: 'https://cleanroom.netlify.app',
+  url: 'https://enkhora.ai',
 
   // Shown in Google results and link previews when a page has no description of its own.
   description:
