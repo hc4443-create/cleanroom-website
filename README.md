@@ -117,7 +117,7 @@ watches GitHub. Every time you save a change to GitHub, Netlify updates the live
 ### Step D: Get found on Google
 Google discovers new sites on its own eventually, but this makes it faster (usually a few days to a few weeks).
 1. Go to **https://search.google.com/search-console** and sign in with a Google account.
-2. Choose **URL prefix** and enter your site address, e.g. `https://cleanroom.netlify.app`.
+2. Choose **URL prefix** and enter your site address, e.g. `https://enkhora.ai`.
 3. Choose the **HTML tag** verification method. Google shows something like
    `<meta name="google-site-verification" content="abc123XYZ" />`.
 4. Copy only the code (`abc123XYZ`) into `googleSiteVerification` in `src/config.ts`, publish the change

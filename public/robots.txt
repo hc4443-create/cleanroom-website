@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # If you change the site address in src/config.ts, update this line too.
-Sitemap: https://cleanroom.netlify.app/sitemap-index.xml
+Sitemap: https://enkhora.ai/sitemap-index.xml
