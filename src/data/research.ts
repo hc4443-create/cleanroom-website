@@ -1,7 +1,6 @@
 // ─────────────────────────────────────────────────────────────
 //  RESEARCH DATA: every number on the site comes from here.
-//  Only published, citable sources. Our own cluster measurements
-//  are deliberately left off the site.
+//  Only published, citable sources.
 // ─────────────────────────────────────────────────────────────
 
 export type Source = {

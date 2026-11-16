@@ -164,11 +164,3 @@ npm run build
 ```
 
 This builds the final site into a `dist` folder and reports any errors.
-
-## Content rules (from the founders)
-- The company name is Enkhora, set once in `src/config.ts`. The logo mark (the 2×2 memory blocks) stays as is.
-- Use published, citable HPC research for numbers, not our own cluster measurements. Don't invent numbers, customers or quotes.
-- Don't name the cluster we measured, or organizations we've spoken with.
-- Keep customers broad: any organization running simulations on its own GPUs. Don't target one segment.
-- Don't describe the anchor/executor split or the cross-node design until the provisional patent is filed.
-- Pricing isn't set yet, so keep it off the site.
