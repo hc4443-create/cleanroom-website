@@ -50,7 +50,9 @@ const enterprise = [
         <ul>
           {open.map((f) => <li><strong>{f.title}.</strong> {f.text}</li>)}
         </ul>
-        {SITE.github && <a href={SITE.github} class="btn btn--secondary gh" target="_blank" rel="noopener">View on GitHub <span class="arrow" aria-hidden="true">→</span></a>}
+        {SITE.github
+          ? <a href={SITE.github} class="btn btn--secondary gh" target="_blank" rel="noopener">View on GitHub <span class="arrow" aria-hidden="true">→</span></a>
+          : <a href="/contact/" class="btn btn--secondary gh">Request the open core <span class="arrow" aria-hidden="true">→</span></a>}
       </article>
       <article class="card tier tier--ent">
         <span class="tag">Enterprise</span>
@@ -60,6 +62,7 @@ const enterprise = [
         <ul>
           {enterprise.map((f) => <li><strong>{f.title}.</strong> {f.text}</li>)}
         </ul>
+        <a href="/contact/" class="btn btn--secondary gh">Talk to us about enterprise <span class="arrow" aria-hidden="true">→</span></a>
       </article>
     </div>
   </section>
@@ -81,17 +84,19 @@ const enterprise = [
     </div>
   </section>
 
-  <CTABand title="Open core or enterprise? Let’s look at your cluster." text="We’ll run the simulator on your scheduler history and help you choose the right setup." />
+  <CTABand title="Open core or enterprise? Let’s look at your cluster." text="We’ll replay your scheduler history and help you choose." />
 </BaseLayout>
 
 <style>
-  .tiers { align-items: start; }
+  .tiers { align-items: stretch; }
   .tier h2 { margin: 1rem 0 0.5rem; font-size: clamp(1.6rem, 3vw, 2rem); }
   .tier .lede { font-size: 1.08rem; margin-bottom: 1.5rem; }
   .tier ul { padding-left: 1.1rem; display: grid; gap: 0.8rem; color: var(--ink-2); }
   .tier strong { color: var(--ink); font-weight: 600; }
   .tier--ent { background: radial-gradient(600px 300px at 100% 0%, rgb(92 209 196 / 0.09), transparent 70%), linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0.01)); border-color: var(--accent-line); }
-  .gh { margin-top: 1.75rem; }
+  .tier { display: flex; flex-direction: column; align-items: flex-start; }
+  .gh { margin-top: auto; }
+  .tier ul { margin-bottom: 1.75rem; }
   .inc { color: var(--ink) !important; font-weight: 550; margin-bottom: 0.8rem; }
   .audit { align-items: start; }
 </style>

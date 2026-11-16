@@ -6,6 +6,7 @@ import { SOURCES, IDLE_MEMORY, BUSY_BUT_EMPTY, MOE_FIT, DEMAND } from '../data/r
 
 const N = SITE.name;
 const sources = Object.values(SOURCES);
+
 ---
 <BaseLayout
   title="Research"
@@ -34,7 +35,8 @@ const sources = Object.values(SOURCES);
         {IDLE_MEMORY.map((f, i) => (
           <div class:list={{ lead: i === 0 }}>
             <p class="n">{f.stat}</p>
-            <p>{f.label}. <a href={f.source.url} target="_blank" rel="noopener">{f.short}</a></p>
+            <p>{f.label}.</p>
+            <a class="src" href={f.source.url} target="_blank" rel="noopener">{f.short} ↗</a>
           </div>
         ))}
       </div>
@@ -53,7 +55,8 @@ const sources = Object.values(SOURCES);
         {BUSY_BUT_EMPTY.map((f) => (
           <div>
             <p class="n">{f.stat}</p>
-            <p>{f.label}. <a href={f.source.url} target="_blank" rel="noopener">{f.short}</a></p>
+            <p>{f.label}.</p>
+            <a class="src" href={f.source.url} target="_blank" rel="noopener">{f.short} ↗</a>
           </div>
         ))}
       </div>
@@ -70,13 +73,13 @@ const sources = Object.values(SOURCES);
           The largest open models are mostly experts: huge in memory, light on compute, and used a few at a time. They
           fit the space simulations leave behind.
         </p>
-        <p class="caption">Figures for DeepSeek-V3 from its <a href={SOURCES.deepseek.url} target="_blank" rel="noopener">technical report</a>.</p>
       </div>
       <div class="lines figs">
         {MOE_FIT.map((f) => (
           <div>
             <p class="n">{f.stat}</p>
             <p>{f.label}.</p>
+            <a class="src" href={SOURCES.deepseek.url} target="_blank" rel="noopener">DeepSeek-V3 technical report ↗</a>
           </div>
         ))}
       </div>
@@ -94,7 +97,8 @@ const sources = Object.values(SOURCES);
         {DEMAND.map((d) => (
           <li>
             <h3>{d.title}</h3>
-            <p>{d.text} <a href={d.source.url} target="_blank" rel="noopener">{d.source.venue}</a></p>
+            <p>{d.text}</p>
+            <a class="src" href={d.source.url} target="_blank" rel="noopener">{d.source.venue} ↗</a>
           </li>
         ))}
       </ul>
@@ -116,13 +120,14 @@ const sources = Object.values(SOURCES);
     </div>
   </section>
 
-  <CTABand title="Want to see what your own cluster looks like?" text="Our simulator replays your scheduler history and shows how much spare GPU memory you have, hour by hour, and which models it could serve." />
+  <CTABand title="Want to see what your own cluster looks like?" text="We’ll replay your scheduler history and show your spare memory, hour by hour." />
 </BaseLayout>
 
 <style>
-  .figs .n { font-size: clamp(2.4rem, 4.5vw, 3.25rem); font-weight: 600; letter-spacing: -0.045em; line-height: 1; margin-bottom: 0.85rem; color: var(--ink); }
-  .figs p:last-child { color: var(--ink-2); font-size: 0.98rem; max-width: 22em; }
-  .figs .lead .n { color: var(--accent-ink); }
+  .figs .n { font-size: clamp(2.05rem, 3.8vw, 3.25rem); font-weight: 600; letter-spacing: -0.045em; line-height: 1; margin-bottom: 0.85rem; color: var(--ink); }
+  .figs p { color: var(--ink-2); font-size: 0.98rem; max-width: 22em; }
+  .src { display: inline-block; margin-top: 0.9rem; font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-3); text-decoration: none; }
+  .src:hover { color: var(--accent); }
   .demand { list-style: none; padding: 0; }
   .demand p { font-size: 0.98rem; }
 

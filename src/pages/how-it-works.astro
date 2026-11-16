@@ -15,7 +15,7 @@ const steps = [
   },
   {
     state: 'shared',
-    title: 'Model experts fill the spare memory',
+    title: 'Models fill the spare memory',
     text: `${N} pools the spare memory of GPUs across the cluster and loads a large model into it. Together, that space holds a model that would otherwise need a dedicated multi-GPU server.`,
   },
   {
@@ -104,7 +104,7 @@ const faqs = [
     <div class="container">
       <div class="section-head">
         <span class="eyebrow">Host-job protection</span>
-        <h2>We are the guest. Your job is the host.</h2>
+        <h2>We’re the guest. Your job is the host.</h2>
         <p class="lede">Two control loops on every node protect your jobs, one for memory and one for compute. Both run locally, and both always fail in your job’s favor.</p>
       </div>
       <ul class="lines lines--3 rules">
@@ -116,6 +116,7 @@ const faqs = [
           </li>
         ))}
       </ul>
+      <p class="levels-h">Roll out one level at a time</p>
       <ul class="lines lines--3 levels">
         {levels.map((l) => (
           <li>
@@ -135,15 +136,15 @@ const faqs = [
         <span class="eyebrow">Fits your cluster</span>
         <h2>Works with what you already run.</h2>
       </div>
-      <div class="grid grid--3">
+      <ul class="lines lines--3 features">
         {features.map((f) => (
-          <article class="card">
-            <div class="icon"><Icon name={f.icon} /></div>
+          <li>
+            <span class="ficon"><Icon name={f.icon} /></span>
             <h3>{f.title}</h3>
             <p>{f.text}</p>
-          </article>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   </section>
 
@@ -165,7 +166,7 @@ const faqs = [
             ))}
             <tr class="us">
               <th scope="row">{N}</th>
-              <td>Uses spare memory inside busy GPUs, on the Slurm cluster you already run, with your data on your hardware.</td>
+              <td>Uses spare memory inside busy GPUs, on the Slurm cluster you already run, with your data on your hardware</td>
             </tr>
           </tbody>
         </table>
@@ -197,11 +198,15 @@ const faqs = [
   .walk { list-style: none; padding: 0; display: grid; gap: clamp(4rem, 9vw, 6.5rem); }
   .step { display: inline-block; font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 1rem; }
   .copy h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: 1rem; }
-  .visual { padding: clamp(1.5rem, 4vw, 2.5rem) 1rem; border-radius: 20px; background: var(--bg-soft); border: 1px solid var(--line); }
+  .visual { padding: clamp(1.5rem, 4vw, 2.5rem) 0.5rem; border-radius: 20px; background: radial-gradient(70% 60% at 50% 40%, rgb(92 209 196 / 0.08), transparent 70%); }
+  .features { list-style: none; padding: 0; }
+  .features p { font-size: 0.95rem; }
+  .ficon { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; margin-bottom: 1.25rem; border-radius: 9px; border: 1px solid var(--line-strong); color: var(--ink); }
+  .ficon :global(svg) { width: 1.1rem; height: 1.1rem; }
   @media (min-width: 960px) { .walk li:nth-child(even) .copy { order: 2; } }
   .note { margin-top: 3rem; text-align: center; }
 
-  .faq-wrap { max-width: 52rem; }
+  .faq { max-width: 52rem; }
   .faq { border-top: 1px solid var(--line); }
   details { border-bottom: 1px solid var(--line); }
   summary { cursor: pointer; list-style: none; padding: 1.35rem 2.5rem 1.35rem 0; font-weight: 550; font-size: 1.05rem; letter-spacing: -0.01em; color: var(--ink); position: relative; }
@@ -213,7 +218,8 @@ const faqs = [
 
   .rules { padding: 0; list-style: none; }
   .rules p { font-size: 0.95rem; }
-  .levels { margin-top: 3rem; padding: 0; list-style: none; }
+  .levels-h { margin-top: 3.5rem; margin-bottom: 1.25rem; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink-3); }
+  .levels { padding: 0; list-style: none; }
   .levels .tag { margin-bottom: 1rem; }
   .levels p { font-size: 0.95rem; }
 

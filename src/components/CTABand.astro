@@ -3,7 +3,7 @@
 interface Props { title?: string; text?: string }
 const {
   title = 'See how much model your cluster can already hold.',
-  text = 'Tell us about your cluster. We’ll run your scheduler history through our simulator and show you how much spare GPU memory you have, and what you could serve from it.',
+  text = 'We’ll replay your scheduler history and show you what your cluster could serve.',
 } = Astro.props;
 ---
 <section class="section cta">
@@ -13,7 +13,9 @@ const {
       <p class="lede">{text}</p>
       <div class="btn-row">
         <a href="/contact/" class="btn btn--primary">Talk to us <span class="arrow" aria-hidden="true">→</span></a>
-        <a href="/how-it-works/" class="btn btn--secondary">How it works</a>
+        {Astro.url.pathname.startsWith('/how-it-works')
+          ? <a href="/research/" class="btn btn--secondary">See the research</a>
+          : <a href="/how-it-works/" class="btn btn--secondary">How it works</a>}
       </div>
     </div>
   </div>

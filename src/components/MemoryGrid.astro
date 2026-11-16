@@ -14,8 +14,10 @@
 // This is a conceptual picture, not a technical diagram.
 
 type State = 'before' | 'shared' | 'reclaim' | 'interactive';
-interface Props { state?: State; size?: 'lg' | 'md'; showLegend?: boolean }
-const { state = 'shared', size = 'md', showLegend = true } = Astro.props;
+// compact: the page already lists the steps beside the diagram, so the step
+// sentence is kept for screen readers only and click feedback shows in the hint line.
+interface Props { state?: State; size?: 'lg' | 'md'; showLegend?: boolean; compact?: boolean }
+const { state = 'shared', size = 'md', showLegend = true, compact = false } = Astro.props;
 
 const JOBS = [3, 1, 5, 2];         // memory blocks each HPC job uses (out of 8)
 const RECLAIM_GPU = 1;             // in step 3, this GPU's job grows...
@@ -54,23 +56,24 @@ const labels = [
 ];
 ---
 <figure
-  class:list={['mg', `mg--${size}`, { 'mg--interactive': interactive }]}
+  class:list={['mg', `mg--${size}`, { 'mg--interactive': interactive, 'mg--compact': compact }]}
   data-step={step}
+  data-phase={step}
 >
   {interactive && (
     <>
       <div class="controls" role="group" aria-label="Show a step">
-        {['Jobs run', 'AI fills in', 'Memory returned'].map((label, n) => (
-          <button type="button" class="step-btn" data-go={n} aria-pressed={n === step ? 'true' : 'false'}>
-            <span class="num">{n + 1}</span>{label}
+        {['Your jobs run as usual', 'Models fill the spare memory', 'The host job always wins'].map((label, n) => (
+          <button type="button" class="step-btn" data-go={n} aria-pressed={n === step ? 'true' : 'false'} aria-label={`Step ${n + 1}: ${label}`} title={label}>
+            <span class="num">{n + 1}</span>
           </button>
         ))}
       </div>
-      <p class="status" aria-live="polite">{STEPS[step]}</p>
+      <p class:list={['status', { 'sr-only': compact }]} aria-live="off">{STEPS[step]}</p>
     </>
   )}
 
-  <div class="gpus" role={interactive ? 'group' : 'img'} aria-label={labels[step]}>
+  <div class="gpus" role={interactive ? 'group' : 'img'} aria-label={interactive ? 'Four GPUs. Each holds memory used by an HPC job, an AI model, or nothing.' : labels[step]}>
     {gpus.map((cells, g) => {
       const inner = (
         <>
@@ -89,12 +92,12 @@ const labels = [
   {showLegend && (
     <figcaption class="legend">
       <span><i class="dot job"></i>HPC job</span>
-      {step > 0 && <span><i class="dot ai"></i>AI model</span>}
+      {step > 0 && <span class="lg-ai"><i class="dot ai"></i>AI model</span>}
       <span><i class="dot free"></i>Unused memory</span>
-      {step === 2 && <span><i class="dot back"></i>Handed back</span>}
+      {step === 2 && <span class="lg-back"><i class="dot back"></i>Handed back</span>}
     </figcaption>
   )}
-  {interactive && <p class="hint">Try it: click or tap a GPU to give its HPC job more memory.</p>}
+  {interactive && <p class="hint" data-hint>Try it: click or tap a GPU to give its HPC job more memory.</p>}
 </figure>
 
 {interactive && (
@@ -106,6 +109,14 @@ const labels = [
     ];
     document.querySelectorAll<HTMLElement>('.mg--interactive').forEach((fig) => {
       const status = fig.querySelector('.status');
+      const hint = fig.querySelector<HTMLElement>('[data-hint]');
+      const hintDefault = hint?.textContent ?? '';
+      const compact = fig.classList.contains('mg--compact');
+      // In compact mode, feedback from clicking a GPU appears in the visible hint line.
+      const say = (msg: string) => {
+        if (status) status.textContent = msg;
+        if (compact && hint) hint.textContent = msg;
+      };
       const buttons = fig.querySelectorAll<HTMLButtonElement>('.step-btn');
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       let timers: number[] = [];
@@ -113,15 +124,36 @@ const labels = [
       const resetGrown = () =>
         fig.querySelectorAll('.cell.grown').forEach((c) => c.classList.remove('grown'));
 
+      // `step` is what the diagram draws; `phase` is the part of the story on
+      // show. They differ only when a visitor grows a job by hand: the cells stay
+      // on their step, but the story (buttons and step list) is "memory returned".
+      const setPhase = (n: number) => {
+        fig.dataset.phase = String(n);
+        buttons.forEach((b, i) => b.setAttribute('aria-pressed', String(i === n)));
+      };
+      // Below 960px the step list sits under the diagram, out of view: in compact
+      // mode the hint line under the GPUs names the step on show instead.
+      const narrow = window.matchMedia('(max-width: 959px)');
+      const nameStep = (n: number) => {
+        if (!compact || !hint) return;
+        hint.textContent = narrow.matches ? `Step ${n + 1} · ${buttons[n]?.title ?? ''}` : hintDefault;
+      };
       const show = (n: number, text = STEPS[n]) => {
         fig.dataset.step = String(n);
-        buttons.forEach((b, i) => b.setAttribute('aria-pressed', String(i === n)));
+        setPhase(n);
         if (status) status.textContent = text;
       };
-      const stopAutoplay = () => { timers.forEach(clearTimeout); timers = []; };
+      let io: IntersectionObserver | undefined;
+      // Any click hands control to the visitor: stop autoplay for good, and
+      // start announcing step changes to screen readers.
+      const stopAutoplay = () => {
+        timers.forEach(clearTimeout); timers = [];
+        io?.disconnect(); io = undefined;
+        status?.setAttribute('aria-live', 'polite');
+      };
 
       buttons.forEach((b) =>
-        b.addEventListener('click', () => { stopAutoplay(); resetGrown(); show(Number(b.dataset.go)); })
+        b.addEventListener('click', () => { stopAutoplay(); resetGrown(); show(Number(b.dataset.go)); nameStep(Number(b.dataset.go)); })
       );
 
       // Clicking a GPU makes its HPC job grow by one block. If the AI model
@@ -129,6 +161,8 @@ const labels = [
       fig.querySelectorAll<HTMLButtonElement>('.gpu').forEach((gpu) =>
         gpu.addEventListener('click', () => {
           stopAutoplay();
+          // Before the model has loaded there is nothing to hand back, so load it first.
+          // Only the clicked GPU changes.
           if (fig.dataset.step === '0') show(1);
           const cells = [...gpu.querySelectorAll<HTMLElement>('.cell')];
           const isJob = (c: HTMLElement) =>
@@ -137,20 +171,27 @@ const labels = [
           const next = cells.find((c) => !isJob(c) && !c.classList.contains('free'));
           if (next) {
             next.classList.add('grown');
-            show(Number(fig.dataset.step), 'The job needs more memory, so the AI model hands it back within milliseconds.');
+            setPhase(2);
+            say('The job needs more memory, so the AI model hands it back within milliseconds.');
           } else {
             const restored = cells.filter((c) => c.classList.contains('grown'));
             restored.forEach((c) => c.classList.remove('grown'));
-            show(Number(fig.dataset.step), 'The job finished with that memory, so the AI model can use it again.');
+            if (!fig.querySelector('.cell.grown')) setPhase(Number(fig.dataset.step));
+            say('The job finished with that memory, so the AI model can use it again.');
           }
         })
       );
 
-      // Play the three steps once when the page loads.
-      if (!reduce) {
+      // Play the three steps once, when the diagram first scrolls into view.
+      if (!reduce && 'IntersectionObserver' in window) {
         show(0);
-        timers.push(window.setTimeout(() => show(1), 1400));
-        timers.push(window.setTimeout(() => show(2), 4400));
+        io = new IntersectionObserver((entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          io?.disconnect();
+          timers.push(window.setTimeout(() => show(1), 900));
+          timers.push(window.setTimeout(() => show(2), 3900));
+        }, { threshold: 0.5 });
+        io.observe(fig);
       }
     });
   </script>
@@ -179,19 +220,23 @@ const labels = [
     width: calc(var(--cell) * 1.7); height: var(--cell);
     border-radius: 4px;
     background: transparent;
-    box-shadow: inset 0 0 0 1px var(--line-strong);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3);
     transition: background-color 0.45s ease, box-shadow 0.45s ease, transform 0.45s ease;
     transition-delay: calc(var(--i) * 55ms);
   }
   .cell.job { background: var(--mem-job); box-shadow: none; }
-  .free { box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .free { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); }
 
   /* Step 1 and 2: the AI model fills the unused memory */
   [data-step='1'] .cell.ai, [data-step='2'] .cell.ai,
   [data-step='1'] .cell.swap { background: var(--mem-ai); box-shadow: 0 0 14px -2px rgb(92 209 196 / 0.45); }
   /* Step 2: one job takes memory back */
   [data-step='2'] .cell.swap { background: var(--mem-job); box-shadow: inset 0 0 0 2px var(--mem-back); }
-  [data-step='2'] .gpu:has(.swap) { border-color: var(--mem-back); }
+  [data-step='2'] .gpu:has(.swap), .gpu:has(.grown) { border-color: var(--mem-back); }
+  /* Legend shows only what the current step contains */
+  .mg--interactive[data-step='0'] .lg-ai,
+  .mg--interactive[data-step='0'] .lg-back,
+  .mg--interactive[data-step='1']:not(:has(.grown)) .lg-back { display: none; }
   /* A job grown by clicking its GPU */
   .cell.grown, [data-step] .cell.grown { background: var(--mem-job) !important; box-shadow: inset 0 0 0 2px var(--mem-back); transition-delay: 0s; }
   [data-step='0'] .cell { transition-delay: 0s; }
@@ -199,35 +244,35 @@ const labels = [
   .gpu-label { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink-3); }
 
   .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem; margin-top: 1.25rem; font-size: 0.85rem; color: var(--ink-2); }
+  /* Narrow: four legend items as two even pairs rather than three plus an orphan */
+  @media (max-width: 1100px) {
+    .mg:is([data-step='2'], :has(.cell.grown)) .legend:has(.lg-back) { display: grid; grid-template-columns: repeat(2, auto); justify-content: center; }
+  }
   .legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
   .dot { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 3px; flex: none; }
   .dot.job { background: var(--mem-job); }
   .dot.ai { background: var(--mem-ai); }
-  .dot.free { box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .dot.free { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); }
   .dot.back { background: var(--mem-job); box-shadow: inset 0 0 0 2px var(--mem-back); }
 
   /* Interactive controls */
-  .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; max-width: 26rem; margin: 0 auto 1rem; }
+  /* Step buttons: numbers only (the step list beside the diagram names each step) */
+  .controls { display: flex; justify-content: center; gap: 0.5rem; margin: 0 auto 1.25rem; }
   .step-btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
-    white-space: nowrap;
-    padding: 0.4rem 0.6rem 0.4rem 0.4rem;
-    border: 1px solid var(--line); border-radius: 999px;
+    display: grid; place-items: center;
+    width: 2.75rem; height: 2.75rem; padding: 0;
+    border: 1px solid var(--line-strong); border-radius: 50%;
     background: var(--surface); color: var(--ink-2);
-    font-size: 0.8rem; font-weight: 500; cursor: pointer;
+    font-family: var(--font-mono); font-size: 0.85rem; font-weight: 500; cursor: pointer;
     transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   }
-  .step-btn:hover { border-color: var(--line-strong); color: var(--ink); }
-  .step-btn .num { display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--line); font-size: 0.7rem; font-weight: 600; }
+  .step-btn:hover { border-color: var(--ink-3); color: var(--ink); }
   .step-btn[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-  .step-btn[aria-pressed='true'] .num { background: rgb(0 0 0 / 0.12); }
-  .status { min-height: 1.6em; margin-bottom: 1rem; text-align: center; font-size: 0.92rem; font-weight: 500; color: var(--ink); }
+  .status { min-height: 3.1em; margin-bottom: 1rem; text-align: center; font-size: 0.92rem; font-weight: 500; color: var(--ink); }
   .hint { margin-top: 0.6rem; text-align: center; font-size: 0.78rem; color: var(--ink-3); }
 
   @media (max-width: 600px) {
-    .status { min-height: 2.9em; font-size: 0.86rem; }
-    .step-btn { font-size: 0.72rem; gap: 0.3rem; padding-right: 0.45rem; }
-    .step-btn .num { width: 1.15rem; height: 1.15rem; }
+    .status { min-height: 3.1em; font-size: 0.86rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .cell, button.gpu, .step-btn { transition: none; }

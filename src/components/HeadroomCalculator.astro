@@ -1,0 +1,200 @@
+---
+// Interactive estimate of what a cluster's spare capacity could hold and serve.
+// All maths and sources live in src/lib/headroom.ts (shared with the browser script).
+// Works without JavaScript too: the defaults are rendered on the server.
+import { SOURCES } from '../data/research';
+import { GPUS, NETS, MODELS, estimate, fmtGb, fmtServers, fmtGpus, fmtTps, fmtLimit } from '../lib/headroom';
+
+const D = { gpus: 256, gpu: 'h100', used: 28.6, idle: 15, net: 200 };
+const est = estimate(D.gpus, D.gpu, D.used, D.idle, D.net);
+---
+<div class="calc" data-calc>
+  <form class="inputs" onsubmit="return false">
+    <!-- Sliders -->
+    <div class="in">
+      <div class="row"><label for="calc-gpus">GPUs in your cluster</label><output for="calc-gpus" aria-live="off" data-out="gpus">{D.gpus}</output></div>
+      <input id="calc-gpus" name="gpus" type="range" min="8" max="2048" step="8" value={D.gpus} />
+    </div>
+    <div class="in">
+      <div class="row">
+        <span><label for="calc-used">Memory your jobs typically use</label> <a class="def" href={SOURCES.sencan2025.url} target="_blank" rel="noopener">(default 28.6%)</a></span>
+        <output for="calc-used" aria-live="off" data-out="used">{D.used}%</output>
+      </div>
+      <input id="calc-used" name="used" type="range" min="0" max="100" step="0.1" value={D.used} />
+    </div>
+    <div class="in">
+      <div class="row">
+        <span><label for="calc-idle">GPU time left fully idle</label> <a class="def" href={SOURCES.li2023.url} target="_blank" rel="noopener">(default 15%)</a></span>
+        <output for="calc-idle" aria-live="off" data-out="idle">{D.idle}%</output>
+      </div>
+      <input id="calc-idle" name="idle" type="range" min="0" max="60" step="1" value={D.idle} />
+    </div>
+
+    <!-- Selections -->
+    <div class="in in--sel">
+      <p class="lbl" id="calc-gpu-l">GPU type</p>
+      <div class="seg" role="radiogroup" aria-labelledby="calc-gpu-l">
+        {GPUS.map((g) => (
+          <label class="opt"><input type="radio" name="gpu" value={g.id} checked={g.id === D.gpu} /><span><b>{g.label.split(' ')[0]}</b><small>{g.label.split(' ')[1]}</small></span></label>
+        ))}
+      </div>
+    </div>
+    <div class="in">
+      <p class="lbl"><span id="calc-net-l">Network bandwidth per GPU, Gb/s</span> <span class="def">(default 200)</span></p>
+      <div class="seg" role="radiogroup" aria-labelledby="calc-net-l">
+        {NETS.map((n) => (
+          <label class="opt"><input type="radio" name="net" value={n} checked={n === D.net} /><span>{n}</span></label>
+        ))}
+      </div>
+    </div>
+  </form>
+
+  <div class="result">
+    <div class="pair">
+      <div>
+        <p class="k">Spare GPU memory</p>
+        <p class="big" data-out="spare">{fmtGb(est.spare)}</p>
+        <p class="sub" data-out="servers">{fmtServers(est.spare)}</p>
+      </div>
+      <div>
+        <p class="k">Idle GPUs, on average</p>
+        <p class="big"><span data-out="idlegpus">{fmtGpus(est.idleGpus)}</span> <small>GPUs</small></p>
+      </div>
+    </div>
+
+    <p class="k fits-h">Output per model, batched</p>
+    <ul class="fits">
+      {MODELS.map((m, i) => {
+        const r = est.rows[i];
+        return (
+          <li class:list={{ no: !r.fits }}>
+            <span class="nm">{m.name} <small>{m.note}</small></span>
+            <span class="sz">~{m.gb} GB</span>
+            <span class="n"><b><span data-tps>{r.fits ? fmtTps(r.tps) : '—'}</span> <i data-unit hidden={!(r.fits && r.tps > 0)}>tokens/s</i></b><small data-lim>{fmtLimit(r)}</small></span>
+          </li>
+        );
+      })}
+    </ul>
+    <div class="links">
+      <a href="/contact/" class="link-arrow">Get the real numbers for your cluster <span aria-hidden="true">→</span></a>
+    </div>
+    <p class="sr-only" aria-live="polite" data-out="summary"></p>
+  </div>
+</div>
+
+<script>
+  import { MODELS, estimate, fmtGb, fmtServers, fmtGpus, fmtTps, fmtLimit, round2 } from '../lib/headroom';
+
+  document.querySelectorAll<HTMLElement>('[data-calc]').forEach((root) => {
+    const form = root.querySelector('form')!;
+    const out = (k: string) => root.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
+    const rows = [...root.querySelectorAll<HTMLElement>('.fits li')];
+
+    const read = () => {
+      const data = new FormData(form);
+      const v = {
+        gpus: Number(data.get('gpus')),
+        gpu: String(data.get('gpu')),
+        used: Number(data.get('used')),
+        idle: Number(data.get('idle')),
+        net: Number(data.get('net')),
+      };
+      return { ...v, ...estimate(v.gpus, v.gpu, v.used, v.idle, v.net) };
+    };
+
+    // Visual update on every slider movement.
+    form.addEventListener('input', () => {
+      const r = read();
+      out('gpus').textContent = String(r.gpus);
+      out('used').textContent = `${r.used}%`;
+      out('idle').textContent = `${r.idle}%`;
+      out('spare').textContent = fmtGb(r.spare);
+      out('servers').textContent = fmtServers(r.spare);
+      out('idlegpus').textContent = fmtGpus(r.idleGpus);
+      rows.forEach((li, i) => {
+        const row = r.rows[i];
+        li.classList.toggle('no', !row.fits);
+        li.querySelector('[data-tps]')!.textContent = row.fits ? fmtTps(row.tps) : '—';
+        li.querySelector('[data-lim]')!.textContent = fmtLimit(row);
+        li.querySelector<HTMLElement>('[data-unit]')!.hidden = !(row.fits && row.tps > 0);
+      });
+    });
+    // Screen readers hear one summary when the visitor lets go of a control.
+    form.addEventListener('change', () => {
+      const r = read();
+      out('summary').textContent = `About ${fmtGb(r.spare)} of spare GPU memory. ${fmtServers(r.spare)} ` + r.rows
+        .map((row, i) => row.fits && row.tps > 0
+          ? `${MODELS[i].name}: about ${round2(row.tps).toLocaleString('en-US')} tokens per second, ${row.limit}-limited.`
+          : `${MODELS[i].name}: ${fmtLimit(row)}.`)
+        .join(' ');
+    });
+  });
+</script>
+
+<style>
+  .calc { display: grid; gap: clamp(2rem, 5vw, 4rem); border-top: 1px solid var(--line); padding-top: clamp(2rem, 4vw, 3rem); }
+  @media (min-width: 960px) { .calc { grid-template-columns: 1fr 1.25fr; } }
+  .calc > * { min-width: 0; }
+
+  .inputs { display: grid; gap: 1.75rem; align-content: start; }
+  .in > .row, .in > .lbl { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.92rem; font-weight: 500; color: var(--ink); }
+  .in > .row label { color: inherit; }
+  .in > .lbl { justify-content: flex-start; flex-wrap: wrap; gap: 0 0.35rem; align-items: baseline; }
+  .in > .row > span { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.35rem; }
+  output { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink); }
+  .def { font-size: 0.8rem; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
+  a.def:hover { color: var(--ink); }
+  .in--sel { margin-top: 0.5rem; padding-top: 1.75rem; border-top: 1px solid var(--line); }
+
+  input[type='range'] { width: 100%; accent-color: var(--accent); height: 2.75rem; margin-block: -0.6rem; }
+  /* Keep the focus ring close to the track instead of a tall box around the touch area */
+  input[type='range']:focus-visible { outline-offset: -0.75rem; border-radius: 999px; }
+  .seg { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--control-border); border-radius: 9px; overflow: hidden; }
+  /* Phones: keep all five options in one row; labels wrap onto two lines */
+  @media (max-width: 560px) {
+    .opt span { font-size: 0.72rem; padding-inline: 0.15rem; }
+  }
+  .opt { position: relative; cursor: pointer; }
+  .opt + .opt { border-left: 1px solid var(--line-strong); }
+  .opt input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .opt span { display: grid; place-content: center; min-height: 3.25rem; padding: 0.35rem 0.25rem; text-align: center; font-size: 0.82rem; line-height: 1.2; color: var(--ink-2); transition: background-color 0.15s, color 0.15s; }
+  /* GPU type: model on top, memory below, at every width */
+  .opt span b { font-weight: inherit; }
+  .opt span small { display: block; font-size: 0.72rem; color: var(--ink-3); }
+  .opt input:checked + span small { color: #45484e; }
+  .opt input:checked + span { background: var(--ink); color: #08090a; font-weight: 550; }
+  .opt input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: -3px; }
+  /* On the light selected option, a teal ring is too faint: use a dark ring instead */
+  .opt input:checked:focus-visible + span { outline-color: #08090a; }
+
+  .result .k { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.02em; color: var(--ink-3); margin-bottom: 0.5rem; }
+  .pair { display: grid; gap: 1.75rem; }
+  @media (min-width: 560px) { .pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pair > div + div { padding-left: 1.5rem; border-left: 1px solid var(--line); } }
+  .big { font-size: clamp(2rem, 3.6vw, 3.4rem); font-weight: 600; letter-spacing: -0.05em; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .big small { font-size: 0.9rem; font-weight: 500; letter-spacing: 0; color: var(--ink-3); }
+  .sub { margin-top: 0.75rem; color: var(--ink-2); font-size: 0.92rem; }
+  .sub b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .fits-h { margin-top: 2rem; }
+  .fits { list-style: none; padding: 0; margin: 0 0 1.25rem; border-top: 1px solid var(--line); }
+  .fits li { display: grid; grid-template-columns: minmax(0, 1fr) auto 10.5rem; gap: 1rem; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+  .fits .nm { color: var(--ink); font-weight: 550; }
+  .fits small { color: var(--ink-3); font-weight: 400; font-family: var(--font-mono); font-size: 0.72rem; margin-left: 0.35rem; }
+  .fits .sz { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-3); }
+  .fits .n { text-align: right; font-size: 0.8rem; }
+  .fits .n b { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fits .n b i { font-style: normal; font-size: 0.75rem; font-weight: 500; letter-spacing: 0; color: var(--ink-3); }
+  /* Models that don't fit recede */
+  .fits li.no .nm, .fits li.no .n b { color: var(--ink-3); }
+  /* Below ~1120px the model note sits under the name instead of squeezing beside it */
+  @media (max-width: 1119px) { .fits .nm small { display: block; margin: 0.15rem 0 0; } }
+  .fits .n small { display: block; margin: 0.15rem 0 0; font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-3); white-space: nowrap; }
+  /* Phones: model size moves under the name; the result column keeps one width on every row */
+  @media (max-width: 560px) {
+    .fits li { grid-template-columns: minmax(0, 1fr) 9.5rem; row-gap: 0.2rem; }
+    .fits .nm { grid-column: 1; grid-row: 1; }
+    .fits .sz { grid-column: 1; grid-row: 2; }
+    .fits .n { grid-column: 2; grid-row: 1 / span 2; }
+  }
+  .links { display: flex; flex-wrap: wrap; gap: 0.75rem 2rem; margin-top: 1.5rem; }
+</style>

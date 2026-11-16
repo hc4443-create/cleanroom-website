@@ -1,0 +1,141 @@
+---
+// Small isometric line drawings for the four host-job promises, labelled like
+// technical figures (FIG 0.1 …). Mostly monochrome lines, one accent each.
+// Purely decorative: the text beside each figure carries the meaning.
+interface Props { kind: 'reclaim' | 'budget' | 'isolate' | 'levels'; n: number }
+const { kind, n } = Astro.props;
+
+// Isometric projection helpers (x to the right-down, y to the left-down, z up).
+const C = Math.cos(Math.PI / 6), S = Math.sin(Math.PI / 6);
+const P = (x: number, y: number, z: number) => [(x - y) * C, (x + y) * S - z] as const;
+const poly = (pts: (readonly [number, number])[]) => pts.map((p) => p.map((v) => v.toFixed(1)).join(',')).join(' ');
+// A box's three visible faces: top, left (front-left) and right (front-right).
+const box = (x: number, y: number, z: number, w: number, d: number, h: number) => ({
+  top: poly([P(x, y, z + h), P(x + w, y, z + h), P(x + w, y + d, z + h), P(x, y + d, z + h)]),
+  left: poly([P(x, y + d, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x, y + d, z + h)]),
+  right: poly([P(x + w, y, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x + w, y, z + h)]),
+});
+
+type Shape = { b: ReturnType<typeof box>; cls?: string };
+let shapes: Shape[] = [];
+let extra = '';
+
+if (kind === 'reclaim') {
+  // A stack of memory layers; the third one slides out, handed back to the job.
+  shapes = [0, 1, 2, 3].map((i) => ({ b: box(0, 0, i * 13, 60, 60, 4), cls: i === 1 ? 'accent-b move' : i === 3 ? 'ai' : '' }));
+} else if (kind === 'budget') {
+  // A flat plate with a progress line that stays under a dashed limit.
+  shapes = [{ b: box(0, 0, 0, 80, 50, 4) }];
+  const line = [[6, 44], [20, 30], [34, 36], [48, 24], [62, 28], [76, 18]].map(([x, y]) => P(x, y, 4));
+  const limit = [P(4, 12, 4), P(80, 2, 4)];
+  extra = `<polyline class="limit" points="${poly(limit)}" /><polyline class="trace-base" points="${poly(line)}" /><polyline class="trace" pathLength="1" points="${poly(line)}" />`;
+} else if (kind === 'isolate') {
+  // One GPU base plate, two separate stacks with a clear gap between them.
+  shapes = [
+    { b: box(0, 0, 0, 80, 56, 4) },
+    { b: box(6, 8, 4, 30, 40, 26), cls: 'job apart-l' },
+    { b: box(46, 8, 4, 28, 40, 18), cls: 'ai apart-r' },
+  ];
+} else {
+  // Three steps: idle GPUs, storage on busy GPUs, compute on busy GPUs.
+  shapes = [
+    { b: box(0, 0, 0, 72, 60, 8), cls: 'step s1 ai' },
+    { b: box(0, 0, 8, 48, 60, 8), cls: 'step s2' },
+    { b: box(0, 0, 16, 24, 60, 8), cls: 'step s3' },
+  ];
+}
+
+// Fit the drawing: collect all points to compute a viewBox.
+const nums = [...shapes.flatMap((s) => [s.b.top, s.b.left, s.b.right]), extra.match(/points="([^"]+)"/g)?.join(' ') ?? '']
+  .join(' ').match(/-?\d+(\.\d+)?/g)!.map(Number);
+const xs = nums.filter((_, i) => i % 2 === 0), ys = nums.filter((_, i) => i % 2 === 1);
+const pad = 6;
+// One shared box size for every figure, so all four draw at the same scale and
+// line up flush left under their labels.
+const vb = `${Math.min(...xs) - pad} ${Math.min(...ys) - pad - 10} 160 130`;
+const label = `FIG 0.${n}`;
+---
+<figure class="sfig" aria-hidden="true">
+  <span class="lbl">{label}</span>
+  <svg viewBox={vb} preserveAspectRatio="xMinYMin meet" focusable="false">
+    {shapes.map((s) => (
+      <g class:list={['bx', s.cls]}>
+        <polygon points={s.b.left} />
+        <polygon points={s.b.right} />
+        <polygon points={s.b.top} />
+      </g>
+    ))}
+    <Fragment set:html={extra} />
+  </svg>
+</figure>
+
+<style>
+  .sfig { margin-bottom: 1.25rem; }
+  .lbl { display: block; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.04em; color: var(--ink-3); margin-bottom: 0.75rem; }
+  svg { width: 100%; max-width: 12rem; height: 7.5rem; overflow: visible; }
+  .bx polygon { fill: var(--bg-soft); stroke: rgb(255 255 255 / 0.28); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .bx.job polygon { stroke: rgb(255 255 255 / 0.45); }
+  .bx.ai polygon { stroke: var(--accent); }
+  .bx.ai polygon:last-child { fill: rgb(92 209 196 / 0.12); }
+  .bx.accent-b polygon { stroke: var(--mem-back); }
+  .bx.accent-b polygon:last-child { fill: rgb(245 177 76 / 0.12); }
+  :global(.limit) { fill: none; stroke: rgb(255 255 255 / 0.4); stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+  :global(.trace-base) { fill: none; stroke: var(--accent); stroke-opacity: 0.4; stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  :global(.trace) { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+  /* Each figure acts out its promise when the promise is hovered or focused within. */
+  @keyframes fig-reclaim { 40%, 60% { transform: translate(16px, 9px); } }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    /* 0.1 Reclaim: the amber layer slides out to the job and settles back */
+    :global(li:hover) .move{ animation: fig-reclaim 1.6s ease-in-out; }
+
+    /* 0.2 Budget: a bright line traces the progress under the dashed limit, and
+       retracts smoothly (no jump) when the pointer leaves */
+    :global(.trace) { stroke-dasharray: 1 2; stroke-dashoffset: 1; transition: stroke-dashoffset 0.6s ease-in-out; }
+    :global(li:hover .trace) { stroke-dashoffset: 0; transition-duration: 1.3s; }
+
+    /* 0.3 Isolation: the job and Enkhora drift apart, widening the gap */
+    .apart-l, .apart-r { transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    :global(li:hover) .apart-l{ transform: translate(-6px, -3.5px); }
+    :global(li:hover) .apart-r{ transform: translate(7px, 4px); }
+
+    /* 0.4 Levels: idle GPUs (bottom) start lit; hovering lights storage, then
+       compute, climbing the steps. Leaving turns them off top-down. */
+    .step polygon { transition: stroke 0.3s ease, fill 0.3s ease; }
+    .s3 polygon { transition-delay: 0s; }
+    .s2 polygon { transition-delay: 0.15s; }
+    :global(li:hover) .s2 polygon,
+    :global(li:hover) .s3 polygon{ stroke: var(--accent); }
+    :global(li:hover) .s2 polygon{ transition-delay: 0s; }
+    :global(li:hover) .s3 polygon{ transition-delay: 0.22s; }
+    :global(li:hover) .s2 polygon:last-child,
+    :global(li:hover) .s3 polygon:last-child{ fill: rgb(92 209 196 / 0.12); }
+  }
+  /* Touch screens have no hover: each figure plays once as its own item scrolls in. */
+  @media (hover: none) and (prefers-reduced-motion: no-preference) {
+    /* 0.1 Reclaim: the amber layer slides out to the job and settles back */
+    :global(li.in) .move{ animation: fig-reclaim 1.6s ease-in-out; }
+
+    /* 0.2 Budget: a bright line traces the progress under the dashed limit, and
+       retracts smoothly (no jump) when the pointer leaves */
+    :global(.trace) { stroke-dasharray: 1 2; stroke-dashoffset: 1; transition: stroke-dashoffset 0.6s ease-in-out; }
+    :global(li.in .trace) { stroke-dashoffset: 0; transition-duration: 1.3s; }
+
+    /* 0.3 Isolation: the job and Enkhora drift apart, widening the gap */
+    .apart-l, .apart-r { transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    :global(li.in) .apart-l{ transform: translate(-6px, -3.5px); }
+    :global(li.in) .apart-r{ transform: translate(7px, 4px); }
+
+    /* 0.4 Levels: idle GPUs (bottom) start lit; hovering lights storage, then
+       compute, climbing the steps. Leaving turns them off top-down. */
+    .step polygon { transition: stroke 0.3s ease, fill 0.3s ease; }
+    .s3 polygon { transition-delay: 0s; }
+    .s2 polygon { transition-delay: 0.15s; }
+    :global(li.in) .s2 polygon,
+    :global(li.in) .s3 polygon{ stroke: var(--accent); }
+    :global(li.in) .s2 polygon{ transition-delay: 0s; }
+    :global(li.in) .s3 polygon{ transition-delay: 0.22s; }
+    :global(li.in) .s2 polygon:last-child,
+    :global(li.in) .s3 polygon:last-child{ fill: rgb(92 209 196 / 0.12); }
+  }
+</style>

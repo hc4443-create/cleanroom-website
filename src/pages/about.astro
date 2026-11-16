@@ -31,9 +31,9 @@ const initials = (name: string) => name.split(' ').map((p) => p[0]).join('').sli
         <span class="eyebrow">Team</span>
         <h2>The founders</h2>
       </div>
-      <div class="grid grid--2">
+      <div class="lines lines--2 people">
         {TEAM.map((p) => (
-          <article class="card person">
+          <article class="person">
             {p.photo
               ? <img class="avatar" src={p.photo} alt="" width="72" height="72" loading="lazy" />
               : <span class="avatar initials" aria-hidden="true">{initials(p.name)}</span>}
@@ -64,7 +64,6 @@ const initials = (name: string) => name.split(' ').map((p) => p[0]).join('').sli
     </div>
   </section>
 
-  <CTABand />
 </BaseLayout>
 
 <style>
