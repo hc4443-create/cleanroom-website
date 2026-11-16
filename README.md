@@ -1,6 +1,6 @@
-# Cleanroom website
+# Enkhora website
 
-The Cleanroom website, built with [Astro](https://astro.build): a tool that turns
+The Enkhora website, built with [Astro](https://astro.build): a tool that turns
 simple files into a fast, plain HTML website.
 
 ---
@@ -51,14 +51,14 @@ save a file, the browser updates automatically. Press `Ctrl + C` in Terminal to 
 
 | I want to change… | Edit this file |
 |---|---|
-| Contact email, site address, tagline | `src/config.ts` |
+| Company name, contact email, site address, tagline, GitHub link | `src/config.ts` |
 | Menu links | `src/config.ts` (`NAV`) |
 | Team names, bios, photos | `src/data/team.ts` |
 | Research numbers and citations | `src/data/research.ts` |
 | Home page text | `src/pages/index.astro` |
 | How it works page | `src/pages/how-it-works.astro` |
-| Evidence page | `src/pages/research.astro` |
-| For institutions page | `src/pages/institutions.astro` |
+| Research page | `src/pages/research.astro` |
+| Open source page | `src/pages/open-source.astro` |
 | About page | `src/pages/about.astro` |
 | Contact page | `src/pages/contact.astro` |
 | Colors, fonts, spacing (whole site) | `src/styles/global.css` (top of file) |
@@ -125,8 +125,8 @@ Google discovers new sites on its own eventually, but this makes it faster (usua
 5. In Search Console, open **Sitemaps**, enter `sitemap-index.xml`, and click **Submit**.
 6. Optionally, use **URL inspection** on your home page and click **Request indexing**.
 
-"Cleanroom" is also a common word, so at first you're more likely to find the site by searching
-something specific, like `Cleanroom private AI GPU cluster`. A custom domain and links to the site
+At first you're more likely to find the site by searching something specific, like
+`Enkhora GPU memory inference`. A custom domain and links to the site
 (LinkedIn, your accelerator profile) help it rank higher over time.
 
 ---
@@ -166,8 +166,9 @@ npm run build
 This builds the final site into a `dist` folder and reports any errors.
 
 ## Content rules (from the founders)
-- All facts come from the business plan. Don't invent numbers, customers or quotes.
-- Don't name the university behind the cluster analysis.
-- Don't name universities we've spoken with (UC San Diego and Michigan are cited only as public examples).
-- Don't describe the technical method behind memory sharing.
+- The company name is Enkhora, set once in `src/config.ts`. The logo mark (the 2×2 memory blocks) stays as is.
+- Use published, citable HPC research for numbers, not our own cluster measurements. Don't invent numbers, customers or quotes.
+- Don't name the cluster we measured, or organizations we've spoken with.
+- Keep customers broad: any organization running simulations on its own GPUs. Don't target one segment.
+- Don't describe the anchor/executor split or the cross-node design until the provisional patent is filed.
 - Pricing isn't set yet, so keep it off the site.

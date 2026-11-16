@@ -1,63 +1,153 @@
 // ─────────────────────────────────────────────────────────────
 //  RESEARCH DATA: every number on the site comes from here.
-//  Source: Cleanroom business plan (Nov 2026).
+//  Only published, citable sources. Our own cluster measurements
+//  are deliberately left off the site.
 // ─────────────────────────────────────────────────────────────
 
-// Our own cluster analysis. The university is deliberately not named.
-export const CLUSTER_STUDY = {
-  description: "a U.S. research university's shared GPU cluster",
-  gpuHours: '62,827',
-  period: 'Sep 21 – Oct 21, 2026',
-  method:
-    "Across the cluster's GPU partition, we paired the peak GPU memory of each profiled GPU-hour with its time-averaged GPU compute use.",
+export type Source = {
+  id: string;
+  authors?: string;
+  title: string;
+  venue: string;
+  url: string;
+  preprint?: string | null;
 };
 
-// Headline findings (share of GPU-hours).
-export const CLUSTER_FINDINGS = [
-  { value: '55.7%', label: 'peaked at or below 25% of GPU memory' },
-  { value: '71.9%', label: 'peaked below 50% of GPU memory' },
-  { value: '38.8%', label: 'peaked below 10% of GPU memory' },
-  { value: '21.7%', label: 'kept compute 75–100% busy while using 25% or less of GPU memory' },
-  { value: '17.6%', label: 'peaked above 75% of GPU memory' },
-];
-
-// Heatmap: rows = average GPU compute use, columns = peak GPU memory.
-// Values are the share of paired, profiled GPU-hours (%).
-export const HEATMAP = {
-  bands: ['0–25%', '25–50%', '50–75%', '75–100%'],
-  rows: [
-    { compute: '0–25%', values: [13.0, 3.8, 1.3, 2.4] },
-    { compute: '25–50%', values: [11.7, 2.7, 0.9, 2.6] },
-    { compute: '50–75%', values: [9.3, 3.8, 1.1, 2.0] },
-    { compute: '75–100%', values: [21.7, 5.9, 7.2, 10.6] },
-  ],
-};
-
-// Peer-reviewed studies of NERSC's Perlmutter supercomputer.
-export const STUDIES = [
-  {
+export const SOURCES = {
+  li2023: {
     id: 'li2023',
-    stat: '~50%',
-    statLabel: 'of GPU-enabled jobs used up to 25% of GPU memory',
-    detail: null,
     authors: 'Li, Michelogiannakis, Cook, Cooray and Chen',
     title: "Analyzing Resource Utilization in an HPC System: A Case Study of NERSC's Perlmutter",
     venue: 'ISC High Performance 2023, LNCS vol. 13948, pp. 297–316',
-    short: 'Li et al., ISC High Performance 2023',
     url: 'https://link.springer.com/chapter/10.1007/978-3-031-32041-5_16',
     preprint: 'https://arxiv.org/pdf/2301.05145',
   },
-  {
+  sencan2025: {
     id: 'sencan2025',
-    stat: '28.6%',
-    statLabel: 'average GPU memory use across 118,276 jobs',
-    detail:
-      '37.12% of jobs never exceeded 15% of GPU memory (about 37% of node hours), while only 15.74% reached 75% or more.',
     authors: 'Sencan, Kulkarni, Coskun and Konate',
     title: 'Analyzing GPU Utilization in HPC Workloads: Insights from Large-Scale Systems',
     venue: "PEARC '25 (ACM)",
-    short: "Sencan et al., PEARC '25",
     url: 'https://www.bu.edu/peaclab/files/2025/07/GPU_Utilization_Analysis_PEARC25.pdf',
     preprint: null,
+  },
+  kth2026: {
+    id: 'kth2026',
+    authors: 'Schieffer, Shi, Ren and Peng',
+    title: 'Taming GPU Underutilization via Static Partitioning and Fine-grained CPU Offloading',
+    venue: 'ISC High Performance 2026 (arXiv 2604.08451)',
+    url: 'https://arxiv.org/pdf/2604.08451',
+    preprint: null,
+  },
+  deepseek: {
+    id: 'deepseek',
+    authors: 'DeepSeek-AI',
+    title: 'DeepSeek-V3 Technical Report',
+    venue: 'arXiv 2412.19437',
+    url: 'https://arxiv.org/abs/2412.19437',
+    preprint: null,
+  },
+  tpc26: {
+    id: 'tpc26',
+    title: 'TPC26: Toward Scientific AI Platforms at HPC Facilities',
+    venue: 'HPCwire, June 2026',
+    url: 'https://hpcwire.com/2026/06/09/tpc26-toward-scientific-ai-platforms-at-hpc-facilities/',
+  },
+  argonne: {
+    id: 'argonne',
+    title: 'New AI inference service for science',
+    venue: 'Globus',
+    url: 'https://www.globus.org/news/new-ai-inference-service-for-science',
+  },
+  memory: {
+    id: 'memory',
+    title: 'Memory shortage market trends',
+    venue: 'Channel Insider, 2026',
+    url: 'https://www.channelinsider.com/ai/memory-shortage-market-trends/',
+  },
+  gpuPrices: {
+    id: 'gpuPrices',
+    title: 'NVIDIA AI GPU pricing guide',
+    venue: 'IntuitionLabs',
+    url: 'https://intuitionlabs.ai/articles/nvidia-ai-gpu-pricing-guide',
+  },
+} satisfies Record<string, Source>;
+
+// Headline stats: GPU memory sits idle on HPC clusters.
+export const IDLE_MEMORY = [
+  {
+    stat: '~50%',
+    label: 'of GPU jobs on NERSC’s Perlmutter used a quarter of GPU memory or less',
+    source: SOURCES.li2023,
+    short: 'Li et al., ISC 2023',
+  },
+  {
+    stat: '28.6%',
+    label: 'average peak GPU memory use across 118,276 HPC jobs',
+    source: SOURCES.sencan2025,
+    short: "Sencan et al., PEARC '25",
+  },
+  {
+    stat: '37%',
+    label: 'of jobs in that study never used more than 15% of GPU memory',
+    source: SOURCES.sencan2025,
+    short: "Sencan et al., PEARC '25",
+  },
+];
+
+// Busy compute, empty memory: GPUs are working, their memory isn't.
+export const BUSY_BUT_EMPTY = [
+  {
+    stat: '63%',
+    label: 'of jobs in the same 118,276-job study pushed GPU utilization to 75% or higher, together covering 80% of GPU node-hours',
+    source: SOURCES.sencan2025,
+    short: "Sencan et al., PEARC '25",
+  },
+  {
+    stat: '1 GB of 96 GB',
+    label: 'of GPU memory was enough for the docking code AutoDock on a Grace Hopper GPU',
+    source: SOURCES.kth2026,
+    short: "Schieffer et al., ISC '26",
+  },
+  {
+    stat: '1.4×',
+    label: 'throughput, and 26% less energy on average, when HPC codes shared a GPU instead of running one after another',
+    source: SOURCES.kth2026,
+    short: "Schieffer et al., ISC '26",
+  },
+];
+
+// Why mixture-of-experts models fit spare memory.
+export const MOE_FIT = [
+  {
+    stat: '97%',
+    label: 'of a 671B-parameter DeepSeek-V3 model is routed experts: memory-heavy, compute-light',
+  },
+  {
+    stat: '8 of 256',
+    label: 'experts per layer are used for any one token',
+  },
+];
+
+// Demand and cost context.
+export const DEMAND = [
+  {
+    title: 'HPC centers want inference',
+    text: 'At TPC26, HPC facility leaders said researchers want inference services and AI agents for daily work, and named cost as the hardest problem.',
+    source: SOURCES.tpc26,
+  },
+  {
+    title: 'Models compete for GPUs',
+    text: 'Argonne’s inference service lists about 35 models but keeps only about 10 loaded at a time.',
+    source: SOURCES.argonne,
+  },
+  {
+    title: 'Memory is scarce and expensive',
+    text: 'DRAM prices were expected to rise 50–55% in a single quarter of 2026, with suppliers sold out for the year.',
+    source: SOURCES.memory,
+  },
+  {
+    title: 'Dedicated hardware is costly',
+    text: 'An 8-GPU H200 server, the usual way to serve a frontier-scale open model, costs about $315,000 before power, staff and floor space.',
+    source: SOURCES.gpuPrices,
   },
 ];

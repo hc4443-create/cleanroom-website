@@ -2,12 +2,13 @@
 // Lists all published updates (newest first).
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { SITE } from '../../config';
 
 const posts = (await getCollection('updates', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const fmt = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
 ---
-<BaseLayout title="Updates" description="News and progress from Cleanroom." noindex={posts.length === 0}>
+<BaseLayout title="Updates" description={`News and progress from ${SITE.name}.`} noindex={posts.length === 0}>
   <section class="page-hero">
     <div class="container">
       <span class="eyebrow">Updates</span>

@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CTABand from '../components/CTABand.astro';
+import { SITE } from '../config';
+
+const N = SITE.name;
+
+const open = [
+  { title: 'Single-node engine', text: 'Serve a model from spare memory and idle GPUs on a single node, with automatic fallback.' },
+  { title: 'Host-job safety', text: 'Admission after warm-up, the node memory watchdog and the optional allocation shim. The code that gives your jobs their memory back is public.' },
+  { title: 'Built-in placement rules', text: 'Fixed headroom, an allowlist of known-good host codes and the job’s requested walltime. Safe and conservative.' },
+  { title: 'Headroom simulator', text: 'Replay your scheduler history to see how much spare memory you have and what it could serve.' },
+  { title: 'Slowdown benchmarks', text: 'Measure the effect of co-located inference on your own codes, reproducibly.' },
+  { title: 'Gateway and launcher', text: 'OpenAI-compatible API, keys, single sign-on and budgets, a Slurm launcher, Apptainer recipes and a preflight checker.' },
+  { title: 'Telemetry agent', text: 'Node agent with a privacy filter you can read, so you can verify exactly what is collected.' },
+];
+
+const enterprise = [
+  { title: 'Cluster-wide pooling', text: 'Pool spare memory across every node in the cluster, not just one.' },
+  { title: 'Compute on busy GPUs', text: 'Run experts on busy GPUs under the adaptive slowdown governor, not just store them there.' },
+  { title: 'Learned placement', text: 'Placement and job-lifetime models that learn from your cluster’s history, plus tuned profiles for each model and GPU type.' },
+  { title: 'Data policy engine', text: 'Per-project data classes, dry runs, sign-off and an audit log, for health and export-controlled data.' },
+  { title: 'Billing and accounting', text: 'Usage ledgers, rate cards and exports to your finance and grant systems.' },
+  { title: 'Admin console', text: 'Views for operators, finance and security teams, plus a savings report for your cluster.' },
+  { title: 'Production operations', text: 'High availability, rolling upgrades, signed builds, an SBOM, security patches and support.' },
+];
+---
+<BaseLayout
+  title="Open source"
+  description={`${N} has an Apache-2.0 open-source core you can run on one node today, and an enterprise edition that pools spare GPU memory across your whole cluster.`}
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Open source</span>
+      <h1>Open where trust matters. Enterprise where scale does.</h1>
+      <p class="lede">
+        Everything that decides when your job gets its memory back is open source, so you can read it before you
+        run it. The open core serves models on a single node. The enterprise edition pools memory across your
+        whole cluster.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid grid--2 tiers">
+      <article class="card tier">
+        <span class="tag tag--muted">Apache-2.0</span>
+        <h2>Open source</h2>
+        <p class="lede">Run it on one node, with conservative settings, for free.</p>
+        <ul>
+          {open.map((f) => <li><strong>{f.title}.</strong> {f.text}</li>)}
+        </ul>
+        {SITE.github && <a href={SITE.github} class="btn btn--secondary gh" target="_blank" rel="noopener">View on GitHub <span class="arrow" aria-hidden="true">→</span></a>}
+      </article>
+      <article class="card tier tier--ent">
+        <span class="tag">Enterprise</span>
+        <h2>Enterprise edition</h2>
+        <p class="lede">Serve your whole organization from your whole cluster.</p>
+        <p class="small inc">Everything in open source, plus:</p>
+        <ul>
+          {enterprise.map((f) => <li><strong>{f.title}.</strong> {f.text}</li>)}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="container split audit">
+      <div>
+        <span class="eyebrow">For security teams</span>
+        <h2>Read every line that runs next to your jobs.</h2>
+      </div>
+      <div>
+        <p class="lede">
+          The memory safety code, telemetry agent and allocation shim are fully open. Enterprise customers also get
+          source access to the slowdown governor, cluster-wide execution and the data policy engine, so your
+          security office can audit them.
+          Security documentation and a threat model are available under NDA.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CTABand title="Open core or enterprise? Let’s look at your cluster." text="We’ll run the simulator on your scheduler history and help you choose the right setup." />
+</BaseLayout>
+
+<style>
+  .tiers { align-items: start; }
+  .tier h2 { margin: 1rem 0 0.5rem; font-size: clamp(1.6rem, 3vw, 2rem); }
+  .tier .lede { font-size: 1.08rem; margin-bottom: 1.5rem; }
+  .tier ul { padding-left: 1.1rem; display: grid; gap: 0.8rem; color: var(--ink-2); }
+  .tier strong { color: var(--ink); font-weight: 600; }
+  .tier--ent { background: radial-gradient(600px 300px at 100% 0%, rgb(92 209 196 / 0.09), transparent 70%), linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0.01)); border-color: var(--accent-line); }
+  .gh { margin-top: 1.75rem; }
+  .inc { color: var(--ink) !important; font-weight: 550; margin-bottom: 0.8rem; }
+  .audit { align-items: start; }
+</style>

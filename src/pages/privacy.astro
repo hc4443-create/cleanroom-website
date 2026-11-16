@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../config';
 const updated = 'November 2026';
 ---
-<BaseLayout title="Privacy" description="How Cleanroom handles information you share through this website.">
+<BaseLayout title="Privacy" description={`How ${SITE.name} handles information you share through this website.`}>
   <section class="page-hero">
     <div class="container">
       <span class="eyebrow">Privacy</span>
@@ -14,7 +14,7 @@ const updated = 'November 2026';
   <section class="section">
     <div class="container prose">
       <h2>What we collect</h2>
-      <p>We only collect what you choose to send us through our contact form: your name, email, institution, role and message.</p>
+      <p>We only collect what you choose to send us through our contact form: your name, email, organization, role and message.</p>
       <p>This site does not use advertising or tracking cookies.</p>
 
       <h2>How we use it</h2>

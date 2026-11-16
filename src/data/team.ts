@@ -8,7 +8,7 @@ export const TEAM = [
   {
     name: 'Hugo Chiang',
     role: 'Co-founder, business lead',
-    school: 'NYU student',
+    school: 'NYU',
     bio: 'Hugo leads customer discovery, partnerships and strategy.',
     photo: '',
     link: '', // optional, e.g. a LinkedIn URL
@@ -16,8 +16,8 @@ export const TEAM = [
   {
     name: 'Tim Chao',
     role: 'Co-founder, technical lead',
-    school: 'Northwestern student',
-    bio: "Tim leads Cleanroom's technical work on GPU systems.",
+    school: 'Northwestern',
+    bio: "Tim leads the technical work on GPU systems and HPC.",
     photo: '',
     link: '',
   },

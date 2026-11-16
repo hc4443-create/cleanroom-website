@@ -3,22 +3,28 @@
 // ─────────────────────────────────────────────────────────────
 
 export const SITE = {
-  name: 'Cleanroom',
+  // The company name. Change it here and it updates site-wide.
+  name: 'Enkhora',
 
   // The web address of the live site. Change this when you get a domain
-  // (for example 'https://cleanroom.ai'). It's used for search engines and
+  // (for example 'https://enkhora.com'). It's used for search engines and
   // social-share previews.
   url: 'https://cleanroom.netlify.app',
 
   // Shown in Google results and link previews when a page has no description of its own.
   description:
-    'Cleanroom lets universities and research institutions run private AI on the GPU clusters they already own. No new hardware, no per-use cloud bills, and data stays on campus.',
+    'Serve large AI models from the GPU memory your HPC jobs leave empty. Slurm-native, open-source core, and the host job always gets its memory back first.',
 
-  tagline: 'Private AI on the GPU clusters you already own.',
+  tagline: 'Your GPUs are busy. The memory inside them isn’t.',
 
   // Contact email. Leave it empty ('') to hide email links; the contact
-  // form still works either way. Example: 'hello@cleanroom.ai'
+  // form still works either way. Example: 'hello@enkhora.com'
   email: '',
+
+  // Public source-code repository for the open-source core. When set, a
+  // "View on GitHub" link appears on the open-source page and in the footer.
+  // Example: 'https://github.com/enkhora/enkhora'
+  github: '',
 
   // Google Search Console verification code (see README, "Get found on Google").
   // Paste only the code inside content="...", e.g. 'abc123XYZ'. Leave '' if unused.
@@ -28,7 +34,7 @@ export const SITE = {
 // Links in the top menu, in order.
 export const NAV = [
   { label: 'How it works', href: '/how-it-works/' },
-  { label: 'Evidence', href: '/research/' },
-  { label: 'For institutions', href: '/institutions/' },
+  { label: 'Research', href: '/research/' },
+  { label: 'Open source', href: '/open-source/' },
   { label: 'About', href: '/about/' },
 ];

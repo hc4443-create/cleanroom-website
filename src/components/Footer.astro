@@ -1,32 +1,57 @@
 ---
 import Logo from './Logo.astro';
-import { NAV, SITE } from '../config';
+import { SITE } from '../config';
 const year = new Date().getFullYear();
 // A mailing-list signup used to sit here. To bring it back, see
 // src/components/NewsletterForm.astro (the form itself is kept for later).
+
+const columns = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'How it works', href: '/how-it-works/' },
+      { label: 'Host-job safety', href: '/how-it-works/#safety' },
+      { label: 'Open source', href: '/open-source/' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'Research', href: '/research/' },
+      { label: 'FAQ', href: '/how-it-works/#faq' },
+      ...(SITE.github ? [{ label: 'GitHub', href: SITE.github }] : []),
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'About', href: '/about/' },
+      { label: 'Contact', href: '/contact/' },
+      { label: 'Privacy', href: '/privacy/' },
+    ],
+  },
+];
 ---
-<footer class="site-footer dark">
+<footer class="site-footer">
   <div class="container">
     <div class="top">
       <div class="brand">
-        <Logo inverted />
-        <p class="muted">{SITE.tagline}</p>
+        <Logo />
+        <p>{SITE.tagline}</p>
       </div>
-      <div class="talk">
-        <p class="muted">Run a research cluster, or want to learn more?</p>
-        <a href="/contact/" class="btn btn--secondary">Talk to us <span class="arrow" aria-hidden="true">→</span></a>
-      </div>
-    </div>
-
-    <div class="bottom">
-      <nav aria-label="Footer">
-        <ul>
-          {NAV.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
-          <li><a href="/contact/">Contact</a></li>
-          <li><a href="/privacy/">Privacy</a></li>
-        </ul>
+      <nav class="cols" aria-label="Footer">
+        {columns.map((c) => (
+          <div>
+            <h2>{c.title}</h2>
+            <ul>
+              {c.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+            </ul>
+          </div>
+        ))}
       </nav>
-      <p class="caption">
+    </div>
+    <div class="bottom">
+      <p>
         © {year} {SITE.name}
         {SITE.email && <> · <a href={`mailto:${SITE.email}`}>{SITE.email}</a></>}
       </p>
@@ -35,13 +60,14 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
-  .site-footer { padding-block: clamp(3.5rem, 7vw, 5rem) 2.5rem; }
-  .top { display: grid; gap: 2rem; padding-bottom: 3rem; border-bottom: 1px solid rgb(231 237 245 / 0.12); }
-  @media (min-width: 860px) { .top { grid-template-columns: 1fr auto; align-items: end; } }
-  .brand p { margin-top: 0.9rem; max-width: 22rem; }
-  .talk { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.25rem; }
-  .bottom { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; justify-content: space-between; align-items: center; padding-top: 1.75rem; }
-  .bottom ul { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; list-style: none; padding: 0; }
-  .bottom ul a { color: var(--on-dark-2); text-decoration: none; font-size: 0.92rem; }
-  .bottom ul a:hover { color: #fff; }
+  .site-footer { border-top: 1px solid var(--line); padding-block: clamp(3.5rem, 7vw, 5rem) 2rem; font-size: 0.9rem; }
+  .top { display: grid; gap: 3rem; padding-bottom: 3rem; }
+  @media (min-width: 860px) { .top { grid-template-columns: 1.3fr 2fr; } }
+  .brand p { margin-top: 1rem; max-width: 18rem; color: var(--ink-3); }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 2rem; }
+  .cols h2 { font-size: 0.86rem; font-weight: 500; letter-spacing: -0.005em; color: var(--ink); margin-bottom: 1rem; }
+  .cols ul { list-style: none; padding: 0; display: grid; gap: 0.65rem; }
+  .cols a { color: var(--ink-3); text-decoration: none; }
+  .cols a:hover { color: var(--ink); }
+  .bottom { padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 0.82rem; }
 </style>

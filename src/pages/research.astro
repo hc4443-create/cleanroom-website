@@ -1,129 +1,136 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Heatmap from '../components/Heatmap.astro';
 import CTABand from '../components/CTABand.astro';
-import { CLUSTER_STUDY, CLUSTER_FINDINGS, STUDIES } from '../data/research';
+import { SITE } from '../config';
+import { SOURCES, IDLE_MEMORY, BUSY_BUT_EMPTY, MOE_FIT, DEMAND } from '../data/research';
+
+const N = SITE.name;
+const sources = Object.values(SOURCES);
 ---
 <BaseLayout
-  title="Evidence"
-  description="Research clusters leave most GPU memory unused. Our analysis of 62,827 GPU-hours on a U.S. research university cluster, plus two peer-reviewed studies of NERSC's Perlmutter, show the same pattern."
+  title="Research"
+  description="Published studies of large HPC systems show GPUs stay busy while most of their memory sits empty. Large mixture-of-experts models need exactly the opposite."
 >
   <section class="page-hero">
     <div class="container">
-      <span class="eyebrow">Evidence</span>
-      <h1>Research clusters leave most of their GPU memory empty.</h1>
+      <span class="eyebrow">Research</span>
+      <h1>HPC clusters leave most of their GPU memory empty.</h1>
       <p class="lede">
-        Our own cluster analysis and two peer-reviewed studies agree: many GPU jobs need a GPU's compute but not its
-        memory. That unused memory is where Cleanroom runs.
+        Peer-reviewed studies of large HPC systems agree: many GPU jobs need a GPU’s compute but not its memory. That
+        unused memory is where {N} runs.
       </p>
     </div>
   </section>
 
-  <!-- OUR ANALYSIS -->
+  <!-- IDLE MEMORY -->
   <section class="section">
     <div class="container">
       <div class="section-head">
-        <span class="eyebrow">Our analysis</span>
-        <h2>{CLUSTER_STUDY.gpuHours} GPU-hours on a real university cluster</h2>
-        <p class="lede">
-          We analyzed {CLUSTER_STUDY.gpuHours} profiled GPU-hours on {CLUSTER_STUDY.description} ({CLUSTER_STUDY.period}),
-          comparing each job's peak GPU memory use with its average GPU compute use.
-        </p>
+        <span class="eyebrow">Idle memory</span>
+        <h2>On large HPC systems, the typical GPU job uses a fraction of its memory.</h2>
+        <p class="lede">Two independent studies, one of NERSC’s Perlmutter and one covering 118,276 jobs, find the same pattern.</p>
       </div>
-      <div class="findings">
-        {CLUSTER_FINDINGS.map((f, i) => (
-          <div class:list={['finding', { lead: i === 0 }]}>
-            <p class="n">{f.value}</p>
-            <p>of GPU-hours {f.label}</p>
+      <div class="lines lines--3 figs">
+        {IDLE_MEMORY.map((f, i) => (
+          <div class:list={{ lead: i === 0 }}>
+            <p class="n">{f.stat}</p>
+            <p>{f.label}. <a href={f.source.url} target="_blank" rel="noopener">{f.short}</a></p>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- HEATMAP -->
+  <!-- BUSY BUT EMPTY -->
   <section class="section dark">
-    <div class="container split heat">
-      <div>
-        <span class="eyebrow">Memory vs. compute</span>
-        <h2>The busiest GPUs often leave the most memory free.</h2>
-        <p class="lede">
-          The top row shows GPU-hours when compute was 75–100% busy. Nearly half of them (21.7% out of 45.4%) left at
-          least three quarters of memory empty. These jobs need the GPU's compute, but not its memory.
-        </p>
-      </div>
-      <Heatmap />
-    </div>
-  </section>
-
-  <!-- PEER-REVIEWED -->
-  <section class="section">
     <div class="container">
       <div class="section-head">
-        <span class="eyebrow">Peer-reviewed studies</span>
-        <h2>Studies of NERSC's Perlmutter supercomputer find the same pattern.</h2>
+        <span class="eyebrow">Busy compute, empty memory</span>
+        <h2>The GPUs are working. Their memory isn’t.</h2>
+        <p class="lede">These aren’t idle GPUs. Most of them are busy running simulations that simply don’t need much memory, so whole-GPU sharing tools can’t reach the space they leave.</p>
       </div>
-      <div class="grid grid--2">
-        {STUDIES.map((s) => (
-          <article class="card study">
-            <p class="n">{s.stat}</p>
-            <p class="stat-label">{s.statLabel}</p>
-            {s.detail && <p>{s.detail}</p>}
-            <div class="cite">
-              <p class="small"><strong>{s.authors}</strong>, “{s.title},” {s.venue}.</p>
-              <p class="links">
-                <a href={s.url} target="_blank" rel="noopener">Read the paper <span aria-hidden="true">↗</span></a>
-                {s.preprint && <a href={s.preprint} target="_blank" rel="noopener">Free preprint <span aria-hidden="true">↗</span></a>}
-              </p>
-            </div>
-          </article>
+      <div class="lines lines--3 figs">
+        {BUSY_BUT_EMPTY.map((f) => (
+          <div>
+            <p class="n">{f.stat}</p>
+            <p>{f.label}. <a href={f.source.url} target="_blank" rel="noopener">{f.short}</a></p>
+          </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- METHOD & SOURCES -->
-  <section class="section section--soft section--tight">
-    <div class="container grid grid--2 method">
+  <!-- MOE FIT -->
+  <section class="section">
+    <div class="container split fit">
       <div>
-        <h2 class="h3">How we measured</h2>
-        <p class="muted">{CLUSTER_STUDY.method} Measurement period: {CLUSTER_STUDY.period}.</p>
-        <p class="muted">We also have requests for GPU usage data in progress at other universities.</p>
+        <span class="eyebrow">The right tenant</span>
+        <h2><span class="nw">Mixture-of-experts</span> models need the opposite.</h2>
+        <p class="lede">
+          The largest open models are mostly experts: huge in memory, light on compute, and used a few at a time. They
+          fit the space simulations leave behind.
+        </p>
+        <p class="caption">Figures for DeepSeek-V3 from its <a href={SOURCES.deepseek.url} target="_blank" rel="noopener">technical report</a>.</p>
       </div>
-      <div>
-        <h2 class="h3">Sources</h2>
-        <ol class="sources small">
-          <li>Cleanroom analysis of {CLUSTER_STUDY.description}, {CLUSTER_STUDY.period}. {CLUSTER_STUDY.gpuHours} paired GPU-hours (peak memory, time-averaged compute).</li>
-          {STUDIES.map((s) => (
-            <li>{s.authors}, “<a href={s.url} target="_blank" rel="noopener">{s.title}</a>,” {s.venue}.{s.preprint && <> (<a href={s.preprint} target="_blank" rel="noopener">free preprint</a>)</>}</li>
-          ))}
-        </ol>
+      <div class="lines figs">
+        {MOE_FIT.map((f) => (
+          <div>
+            <p class="n">{f.stat}</p>
+            <p>{f.label}.</p>
+          </div>
+        ))}
       </div>
     </div>
   </section>
 
-  <CTABand title="Want to see what your own cluster looks like?" text="We'd like to compare notes with research computing teams on how the GPUs in their clusters are used." />
+  <!-- DEMAND -->
+  <section class="section section--soft">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Why now</span>
+        <h2>Demand for in-house AI is rising, and memory keeps getting more expensive.</h2>
+      </div>
+      <ul class="lines lines--2 demand">
+        {DEMAND.map((d) => (
+          <li>
+            <h3>{d.title}</h3>
+            <p>{d.text} <a href={d.source.url} target="_blank" rel="noopener">{d.source.venue}</a></p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section class="section section--tight">
+    <div class="container">
+      <h2 class="h3">Sources</h2>
+      <ol class="sources small">
+        {sources.map((s) => (
+          <li>
+            {'authors' in s && s.authors && <>{s.authors}, </>}“<a href={s.url} target="_blank" rel="noopener">{s.title}</a>,” {s.venue}.
+            {'preprint' in s && s.preprint && <> (<a href={s.preprint} target="_blank" rel="noopener">free preprint</a>)</>}
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <CTABand title="Want to see what your own cluster looks like?" text="Our simulator replays your scheduler history and shows how much spare GPU memory you have, hour by hour, and which models it could serve." />
 </BaseLayout>
 
 <style>
-  .findings { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); }
-  .finding { padding: 1.5rem; border: 1px solid var(--line); border-radius: var(--radius); }
-  .finding .n { font-family: var(--font-serif); font-size: 2.4rem; line-height: 1; margin-bottom: 0.6rem; color: var(--ink); }
-  .finding p:last-child { color: var(--ink-2); font-size: 0.95rem; }
-  .finding.lead { background: var(--accent-soft); border-color: #bfe3de; }
-  .finding.lead .n { color: var(--accent-ink); }
-  @media (min-width: 1100px) { .findings { grid-template-columns: repeat(5, 1fr); } }
+  .figs .n { font-size: clamp(2.4rem, 4.5vw, 3.25rem); font-weight: 600; letter-spacing: -0.045em; line-height: 1; margin-bottom: 0.85rem; color: var(--ink); }
+  .figs p:last-child { color: var(--ink-2); font-size: 0.98rem; max-width: 22em; }
+  .figs .lead .n { color: var(--accent-ink); }
+  .demand { list-style: none; padding: 0; }
+  .demand p { font-size: 0.98rem; }
 
-  .heat { align-items: center; }
-  .heat h2 { margin-bottom: 1.1rem; }
-
-  .study .n { font-family: var(--font-serif); font-size: 3rem; line-height: 1; color: var(--accent); margin-bottom: 0.5rem; }
-  .study .stat-label { color: var(--ink); font-weight: 550; font-size: 1.1rem; margin-bottom: 0.75rem; }
-  .cite { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
-  .cite .small { color: var(--ink-2); }
-  .links { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-top: 0.75rem; font-weight: 550; font-size: 0.95rem; }
+  .fit { align-items: center; }
+  .nw { white-space: nowrap; }
+  .fit h2 { margin-bottom: 1.1rem; }
+  .fit .lede { margin-bottom: 1rem; }
 
   .h3 { font-size: 1.3rem; margin-bottom: 0.9rem; }
-  .method p + p { margin-top: 0.75rem; }
-  .sources { padding-left: 1.2rem; display: grid; gap: 0.6rem; color: var(--ink-2); }
+  .sources { padding-left: 1.2rem; display: grid; gap: 0.6rem; color: var(--ink-2); max-width: 52rem; }
 </style>

@@ -5,18 +5,19 @@ import { SITE } from '../config';
 ---
 <BaseLayout
   title="Talk to us"
-  description="Request a conversation with Cleanroom about running private AI on your institution's GPU cluster."
+  description={`Talk to ${SITE.name} about serving AI models from the spare GPU memory on your cluster.`}
 >
   <section class="section contact">
     <div class="container split">
       <div class="intro">
         <span class="eyebrow">Talk to us</span>
-        <h1>Let's start with a conversation.</h1>
-        <p class="lede">Tell us a little about yourself, and we'll reply by email.</p>
+        <h1>Let’s start with a conversation.</h1>
+        <p class="lede">Tell us a little about yourself, and we’ll reply by email.</p>
         <ul class="who">
-          <li><strong>Research computing directors:</strong> tell us about your cluster and what your researchers need from AI.</li>
-          <li><strong>Investors and accelerators:</strong> we're glad to share more about our progress.</li>
-          <li><strong>Researchers and engineers:</strong> we're open to collaborators and future teammates.</li>
+          <li><strong>HPC and research computing teams:</strong> tell us about your cluster, and we’ll show you how much spare memory it has.</li>
+          <li><strong>Organizations running simulations:</strong> tell us what your scientists and engineers need from AI.</li>
+          <li><strong>Investors and accelerators:</strong> we’re glad to share more about what we’re building.</li>
+          <li><strong>Researchers and engineers:</strong> we’re open to collaborators and future teammates.</li>
         </ul>
         {SITE.email && (
           <p class="email">Prefer email? <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
@@ -34,9 +35,9 @@ import { SITE } from '../config';
   .contact .split { align-items: start; }
   .intro h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin-bottom: 1.1rem; }
   .who { margin-top: 2rem; padding: 0; list-style: none; display: grid; gap: 1rem; }
-  .who li { padding-left: 1.1rem; border-left: 2px solid var(--accent); color: var(--ink-2); }
+  .who li { padding-left: 1.1rem; border-left: 1px solid var(--line-strong); color: var(--ink-2); }
   .who strong { color: var(--ink); font-weight: 600; }
   .email { margin-top: 2rem; }
-  .form-card { box-shadow: var(--shadow); }
+  .form-card { background: var(--surface); }
   .contact { padding-bottom: clamp(4rem, 9vw, 6.5rem); }
 </style>

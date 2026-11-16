@@ -25,3 +25,9 @@
   for = "/_astro/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# The "For institutions" page was folded into the rest of the site in v2.
+[[redirects]]
+  from = "/institutions/*"
+  to = "/"
+  status = 301

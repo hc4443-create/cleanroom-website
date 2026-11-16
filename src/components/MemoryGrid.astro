@@ -1,13 +1,14 @@
 ---
 // The site's signature illustration: four GPUs, each with eight blocks of memory.
-//   gray  = memory a research job is using
-//   teal  = Cleanroom's AI model, placed in memory that was unused
+//   gray  = memory an HPC job is using
+//   teal  = AI model weights, placed in memory that was unused
 //   empty = unused memory
+//   amber outline = memory just handed back to a job (step 3)
 //
 // state:
-//   'before'       research jobs only (memory sits unused)
-//   'shared'       Cleanroom fills unused memory
-//   'reclaim'      a job needs more memory, and Cleanroom gives it back
+//   'before'       HPC jobs only (memory sits unused)
+//   'shared'       AI model weights fill unused memory
+//   'reclaim'      a job needs more memory and gets it back
 //   'interactive'  plays the three steps once, then visitors can click
 //                  through the steps or click a GPU to make its job grow
 // This is a conceptual picture, not a technical diagram.
@@ -16,15 +17,15 @@ type State = 'before' | 'shared' | 'reclaim' | 'interactive';
 interface Props { state?: State; size?: 'lg' | 'md'; showLegend?: boolean }
 const { state = 'shared', size = 'md', showLegend = true } = Astro.props;
 
-const JOBS = [3, 1, 5, 2];         // memory blocks each research job uses (out of 8)
+const JOBS = [3, 1, 5, 2];         // memory blocks each HPC job uses (out of 8)
 const RECLAIM_GPU = 1;             // in step 3, this GPU's job grows...
 const RECLAIM_TO = 4;              // ...to this many blocks
 const CELLS = 8;
 const HEADROOM = 1;                // blocks always left free
 
 // Each cell gets a fixed role; the current step (0, 1 or 2) decides how it looks.
-//   job  = always research    ai   = Cleanroom from step 1
-//   swap = Cleanroom in step 1, handed back to research in step 2
+//   job  = always the HPC job    ai   = AI model from step 1
+//   swap = AI model in step 1, handed back to the job in step 2
 //   free = always unused
 type Role = 'job' | 'ai' | 'swap' | 'free';
 let order = 0;
@@ -42,14 +43,14 @@ const interactive = state === 'interactive';
 const step = { before: 0, shared: 1, reclaim: 2, interactive: 2 }[state];
 
 const STEPS = [
-  'Research jobs are running, leaving most memory unused.',
-  'Cleanroom places an AI model in the unused memory.',
-  'A job needs more memory, so Cleanroom hands it back.',
+  'HPC jobs are running, leaving most memory unused.',
+  'AI model weights fill the unused memory.',
+  'A job needs more memory, so it gets it back.',
 ];
 const labels = [
-  'Four GPUs running research jobs. Most of each GPU’s memory is unused.',
-  'Four GPUs running research jobs. Cleanroom has placed an AI model in the memory the jobs left unused.',
-  'One research job needs more memory, and Cleanroom has handed that memory back. The AI model keeps running in the remaining unused memory.',
+  'Four GPUs running HPC jobs. Most of each GPU’s memory is unused.',
+  'Four GPUs running HPC jobs. An AI model’s weights fill the memory the jobs left unused.',
+  'One HPC job needs more memory and has been handed it back. The AI model keeps running in the remaining unused memory.',
 ];
 ---
 <figure
@@ -69,7 +70,7 @@ const labels = [
     </>
   )}
 
-  <div class="gpus" role="img" aria-label={labels[step]}>
+  <div class="gpus" role={interactive ? 'group' : 'img'} aria-label={labels[step]}>
     {gpus.map((cells, g) => {
       const inner = (
         <>
@@ -80,27 +81,28 @@ const labels = [
         </>
       );
       return interactive
-        ? <button type="button" class="gpu" data-gpu={g} aria-label={`GPU ${g + 1}: make its research job use more memory`}>{inner}</button>
+        ? <button type="button" class="gpu" data-gpu={g} aria-label={`GPU ${g + 1}: make its HPC job use more memory`}>{inner}</button>
         : <div class="gpu">{inner}</div>;
     })}
   </div>
 
   {showLegend && (
     <figcaption class="legend">
-      <span><i class="dot job"></i>Research job</span>
-      <span><i class="dot ai"></i>Cleanroom AI model</span>
+      <span><i class="dot job"></i>HPC job</span>
+      {step > 0 && <span><i class="dot ai"></i>AI model</span>}
       <span><i class="dot free"></i>Unused memory</span>
+      {step === 2 && <span><i class="dot back"></i>Handed back</span>}
     </figcaption>
   )}
-  {interactive && <p class="hint">Try it: click or tap a GPU to give its research job more memory.</p>}
+  {interactive && <p class="hint">Try it: click or tap a GPU to give its HPC job more memory.</p>}
 </figure>
 
 {interactive && (
   <script>
     const STEPS = [
-      'Research jobs are running, leaving most memory unused.',
-      'Cleanroom places an AI model in the unused memory.',
-      'A job needs more memory, so Cleanroom hands it back.',
+      'HPC jobs are running, leaving most memory unused.',
+      'AI model weights fill the unused memory.',
+      'A job needs more memory, so it gets it back.',
     ];
     document.querySelectorAll<HTMLElement>('.mg--interactive').forEach((fig) => {
       const status = fig.querySelector('.status');
@@ -122,24 +124,24 @@ const labels = [
         b.addEventListener('click', () => { stopAutoplay(); resetGrown(); show(Number(b.dataset.go)); })
       );
 
-      // Clicking a GPU makes its research job grow by one block. If Cleanroom
+      // Clicking a GPU makes its HPC job grow by one block. If the AI model
       // was using that block, it hands it back.
       fig.querySelectorAll<HTMLButtonElement>('.gpu').forEach((gpu) =>
         gpu.addEventListener('click', () => {
           stopAutoplay();
           if (fig.dataset.step === '0') show(1);
           const cells = [...gpu.querySelectorAll<HTMLElement>('.cell')];
-          const isResearch = (c: HTMLElement) =>
+          const isJob = (c: HTMLElement) =>
             c.classList.contains('job') || c.classList.contains('grown') ||
             (c.classList.contains('swap') && fig.dataset.step === '2');
-          const next = cells.find((c) => !isResearch(c) && !c.classList.contains('free'));
+          const next = cells.find((c) => !isJob(c) && !c.classList.contains('free'));
           if (next) {
             next.classList.add('grown');
-            show(Number(fig.dataset.step), 'A job needs more memory, so Cleanroom hands it back immediately.');
+            show(Number(fig.dataset.step), 'The job needs more memory, so the AI model hands it back within milliseconds.');
           } else {
             const restored = cells.filter((c) => c.classList.contains('grown'));
             restored.forEach((c) => c.classList.remove('grown'));
-            show(Number(fig.dataset.step), 'The job finished with that memory, so Cleanroom can use it again.');
+            show(Number(fig.dataset.step), 'The job finished with that memory, so the AI model can use it again.');
           }
         })
       );
@@ -163,44 +165,46 @@ const labels = [
     display: grid; gap: 0.6rem; justify-items: center;
     padding: calc(var(--gap) * 2);
     padding-bottom: 0.65rem;
-    background: var(--bg);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015));
     border: 1px solid var(--line);
+    transition: border-color 0.45s ease;
     border-radius: 12px;
-    box-shadow: var(--shadow);
     font: inherit;
   }
   button.gpu { cursor: pointer; transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s; }
-  button.gpu:hover { border-color: var(--accent); transform: translateY(-2px); }
+  button.gpu:hover { border-color: var(--accent-line); transform: translateY(-2px); }
   button.gpu:active { transform: translateY(0); }
   .cells { display: flex; flex-direction: column-reverse; gap: var(--gap); }
   .cell {
     width: calc(var(--cell) * 1.7); height: var(--cell);
-    border-radius: 5px;
+    border-radius: 4px;
     background: transparent;
-    box-shadow: inset 0 0 0 1.5px var(--line-strong);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
     transition: background-color 0.45s ease, box-shadow 0.45s ease, transform 0.45s ease;
     transition-delay: calc(var(--i) * 55ms);
   }
   .cell.job { background: var(--mem-job); box-shadow: none; }
-  .free { box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+  .free { box-shadow: inset 0 0 0 1px var(--line-strong); }
 
-  /* Step 1 and 2: Cleanroom fills the unused memory */
+  /* Step 1 and 2: the AI model fills the unused memory */
   [data-step='1'] .cell.ai, [data-step='2'] .cell.ai,
-  [data-step='1'] .cell.swap { background: var(--mem-ai); box-shadow: none; }
+  [data-step='1'] .cell.swap { background: var(--mem-ai); box-shadow: 0 0 14px -2px rgb(92 209 196 / 0.45); }
   /* Step 2: one job takes memory back */
-  [data-step='2'] .cell.swap { background: var(--mem-job); box-shadow: none; }
+  [data-step='2'] .cell.swap { background: var(--mem-job); box-shadow: inset 0 0 0 2px var(--mem-back); }
+  [data-step='2'] .gpu:has(.swap) { border-color: var(--mem-back); }
   /* A job grown by clicking its GPU */
-  .cell.grown, [data-step] .cell.grown { background: var(--mem-job) !important; box-shadow: 0 0 0 2px var(--accent-soft); transition-delay: 0s; }
+  .cell.grown, [data-step] .cell.grown { background: var(--mem-job) !important; box-shadow: inset 0 0 0 2px var(--mem-back); transition-delay: 0s; }
   [data-step='0'] .cell { transition-delay: 0s; }
 
-  .gpu-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); }
+  .gpu-label { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink-3); }
 
   .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem; margin-top: 1.25rem; font-size: 0.85rem; color: var(--ink-2); }
   .legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
   .dot { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 3px; flex: none; }
   .dot.job { background: var(--mem-job); }
   .dot.ai { background: var(--mem-ai); }
-  .dot.free { box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+  .dot.free { box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .dot.back { background: var(--mem-job); box-shadow: inset 0 0 0 2px var(--mem-back); }
 
   /* Interactive controls */
   .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; max-width: 26rem; margin: 0 auto 1rem; }
@@ -209,14 +213,14 @@ const labels = [
     white-space: nowrap;
     padding: 0.4rem 0.6rem 0.4rem 0.4rem;
     border: 1px solid var(--line); border-radius: 999px;
-    background: var(--bg); color: var(--ink-2);
-    font-size: 0.82rem; font-weight: 500; cursor: pointer;
+    background: var(--surface); color: var(--ink-2);
+    font-size: 0.8rem; font-weight: 500; cursor: pointer;
     transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   }
-  .step-btn:hover { border-color: var(--accent); color: var(--ink); }
-  .step-btn .num { display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--bg-soft); font-size: 0.72rem; font-weight: 600; }
-  .step-btn[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .step-btn[aria-pressed='true'] .num { background: rgb(255 255 255 / 0.2); }
+  .step-btn:hover { border-color: var(--line-strong); color: var(--ink); }
+  .step-btn .num { display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--line); font-size: 0.7rem; font-weight: 600; }
+  .step-btn[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .step-btn[aria-pressed='true'] .num { background: rgb(0 0 0 / 0.12); }
   .status { min-height: 1.6em; margin-bottom: 1rem; text-align: center; font-size: 0.92rem; font-weight: 500; color: var(--ink); }
   .hint { margin-top: 0.6rem; text-align: center; font-size: 0.78rem; color: var(--ink-3); }
 

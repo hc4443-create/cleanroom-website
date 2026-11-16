@@ -1,0 +1,185 @@
+---
+// Hero product illustration: a stylized operator console showing spare GPU
+// memory across a cluster, the model placed in it, and memory being handed
+// back to a host job. Figures are examples, not measurements.
+import { SITE } from '../config';
+
+// job = % of the GPU's memory the host job uses; ai = % holding model weights.
+const nodes = [
+  { name: 'gpu-a014', gpu: 'H100 80GB', job: 18, ai: 64, code: 'nekrs' },
+  { name: 'gpu-a021', gpu: 'H100 80GB', job: 34, ai: 50, code: 'gromacs', reclaim: true },
+  { name: 'gpu-b007', gpu: 'A100 80GB', job: 9, ai: 72, code: 'autodock' },
+  { name: 'gpu-b019', gpu: 'A100 80GB', job: 46, ai: 38, code: 'openfoam' },
+  { name: 'gpu-c003', gpu: 'A100 40GB', job: 22, ai: 58, code: 'lammps' },
+  { name: 'gpu-c011', gpu: 'idle', job: 0, ai: 84, code: '—' },
+];
+
+const log = [
+  { t: '14:02:11', msg: 'gpu-a021 · host job grew, 12 GB returned', kind: 'reclaim' },
+  { t: '14:02:11', msg: 'deepseek-v3 · requests served without interruption', kind: 'route' },
+  { t: '14:01:47', msg: 'gpu-c011 · idle GPU joined pool', kind: 'join' },
+  { t: '14:01:02', msg: 'gpu-b019 · governor eased compute share', kind: 'gov' },
+  { t: '14:00:38', msg: 'batch job ‘lit-review’ · 18,400 requests queued', kind: 'route' },
+];
+
+const nav = ['Overview', 'Models', 'Nodes', 'Jobs', 'Policies', 'Usage'];
+---
+<figure class="console" role="img" aria-label={`Product illustration of the ${SITE.name} console, with example figures: spare GPU memory across a cluster holding large AI models, and one GPU handing memory back to its job.`}>
+  <div class="glow" aria-hidden="true"></div>
+  <div class="frame" aria-hidden="true">
+    <div class="titlebar">
+      <span class="dots"><i></i><i></i><i></i></span>
+      <span class="crumb">cluster-east <span>/</span> Overview</span>
+      <span class="live"><i></i>Live</span>
+    </div>
+
+    <div class="body">
+      <aside class="side">
+        <p class="org"><span class="sq"></span>{SITE.name}</p>
+        <ul>
+          {nav.map((n, i) => <li class:list={{ on: i === 0 }}>{n}</li>)}
+        </ul>
+        <p class="side-h">Models</p>
+        <ul class="models">
+          <li><i class="ok"></i>deepseek-v3</li>
+          <li><i class="ok"></i>qwen3-235b</li>
+          <li><i class="ok"></i>gpt-oss-120b</li>
+        </ul>
+      </aside>
+
+      <div class="main">
+        <div class="kpis">
+          <div><p class="k">Spare memory pooled</p><p class="v">1.42 <small>TB</small></p></div>
+          <div><p class="k">Models served</p><p class="v">3</p></div>
+          <div><p class="k">Host jobs</p><p class="v v--ok"><i></i>Within budget</p></div>
+          <div><p class="k">Requests today</p><p class="v">214k</p></div>
+        </div>
+
+        <div class="panels">
+          <div class="panel nodes">
+            <div class="panel-h"><span>GPU memory</span><span class="legend"><i class="lj"></i>Host job <i class="la"></i>Model <i class="lf"></i>Free</span></div>
+            <ul>
+              {nodes.map((n) => (
+                <li class:list={{ reclaim: n.reclaim }}>
+                  <span class="nm">{n.name}</span>
+                  <span class="meta">{n.gpu}</span>
+                  <span class="bar" style={`--job:${n.job}%;--ai:${n.ai}%`}>
+                    <span class="j"></span><span class="a"></span>
+                  </span>
+                  <span class="code">{n.code}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="panel activity">
+            <div class="panel-h"><span>Activity</span></div>
+            <ol>
+              {log.map((l) => (
+                <li><span class="t">{l.t}</span><span class:list={['m', l.kind]}>{l.msg}</span></li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption class="caption">Product illustration. Figures are examples.</figcaption>
+</figure>
+
+<style>
+  .console { position: relative; }
+  .glow {
+    position: absolute; inset: -12% -6% 10%;
+    background:
+      radial-gradient(50% 55% at 50% 40%, rgb(92 209 196 / 0.16), transparent 70%),
+      radial-gradient(40% 40% at 80% 20%, rgb(120 140 255 / 0.10), transparent 70%);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .frame {
+    position: relative;
+    border-radius: 14px;
+    border: 1px solid var(--line-strong);
+    background: #0b0c0e;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.6), 0 40px 120px -40px rgb(0 0 0 / 0.9), inset 0 1px 0 rgb(255 255 255 / 0.06);
+    overflow: hidden;
+    font-size: 0.8rem;
+    color: var(--ink-2);
+    text-align: left;
+    -webkit-mask-image: linear-gradient(180deg, #000 88%, transparent);
+    mask-image: linear-gradient(180deg, #000 88%, transparent);
+  }
+  .caption { position: relative; margin-top: 0.75rem; text-align: center; }
+
+  .titlebar { display: flex; align-items: center; gap: 1rem; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--line); background: rgb(255 255 255 / 0.015); }
+  .dots { display: flex; gap: 6px; }
+  .dots i { width: 10px; height: 10px; border-radius: 50%; background: rgb(255 255 255 / 0.12); }
+  .crumb { color: var(--ink-3); }
+  .crumb span { margin-inline: 0.3rem; opacity: 0.6; }
+  .live { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); }
+  .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  .body { display: grid; }
+  @media (min-width: 900px) { .body { grid-template-columns: 11.5rem 1fr; } }
+
+  .side { display: none; padding: 1rem 0.75rem; border-right: 1px solid var(--line); }
+  @media (min-width: 900px) { .side { display: block; } }
+  .org { display: flex; align-items: center; gap: 0.5rem; color: var(--ink); font-weight: 550; margin-bottom: 1rem; padding-inline: 0.5rem; }
+  .sq { width: 14px; height: 14px; border-radius: 4px; background: linear-gradient(135deg, var(--accent), #2f8f86); }
+  .side ul { list-style: none; padding: 0; display: grid; gap: 1px; }
+  .side li { padding: 0.35rem 0.5rem; border-radius: 6px; }
+  .side li.on { background: rgb(255 255 255 / 0.06); color: var(--ink); }
+  .side-h { margin: 1.25rem 0 0.4rem; padding-inline: 0.5rem; font-size: 0.7rem; color: var(--ink-3); }
+  .models li { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.72rem; }
+  .models i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  .main { padding: 1rem; display: grid; gap: 1rem; min-width: 0; }
+  .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  @media (min-width: 1100px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
+  .kpis > div { padding: 0.75rem 0.85rem; border: 1px solid var(--line); border-radius: 10px; background: rgb(255 255 255 / 0.02); }
+  .k { font-size: 0.7rem; color: var(--ink-3); margin-bottom: 0.3rem; }
+  .v { font-size: 1.25rem; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .v small { font-size: 0.72rem; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
+  .v--ok { white-space: nowrap; display: flex; align-items: center; gap: 0.45rem; font-size: 0.95rem; line-height: 1.7; letter-spacing: -0.01em; }
+  .v--ok i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  .panels { display: grid; gap: 1rem; }
+  @media (min-width: 1100px) { .panels { grid-template-columns: 1.7fr 1fr; } }
+  .panel { border: 1px solid var(--line); border-radius: 10px; background: rgb(255 255 255 / 0.015); min-width: 0; }
+  .panel-h { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--line); color: var(--ink); font-weight: 550; }
+  .legend { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 400; font-size: 0.68rem; color: var(--ink-3); }
+  .legend i { width: 8px; height: 8px; border-radius: 2px; margin-left: 0.35rem; }
+  .lj { background: var(--mem-job); } .la { background: var(--accent); } .lf { box-shadow: inset 0 0 0 1px var(--line-strong); }
+
+  .nodes ul { list-style: none; padding: 0.35rem 0; }
+  .nodes li { display: grid; grid-template-columns: 5.2rem 1fr; align-items: center; gap: 0.25rem 0.75rem; padding: 0.45rem 0.85rem; }
+  @media (min-width: 600px) { .nodes li { grid-template-columns: 5.2rem 5.6rem 1fr 4.2rem; } }
+  .nm { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink); }
+  .meta, .code { display: none; font-size: 0.7rem; color: var(--ink-3); }
+  @media (min-width: 600px) { .meta, .code { display: block; } .code { font-family: var(--font-mono); text-align: right; } }
+  .bar { position: relative; display: flex; height: 10px; border-radius: 3px; background: rgb(255 255 255 / 0.03); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+  .bar .j { width: var(--job); background: var(--mem-job); }
+  .bar .a { width: var(--ai); background: linear-gradient(90deg, #3fb3a6, var(--accent)); box-shadow: 0 0 12px rgb(92 209 196 / 0.35); }
+  /* Static cue (also shown with reduced motion): this GPU's job is taking memory back */
+  .reclaim .code { color: var(--mem-back); }
+  .reclaim .bar .j { box-shadow: inset -2px 0 0 var(--mem-back); }
+  .reclaim .bar .j { animation: grow 6s ease-in-out infinite; }
+  .reclaim .bar .a { animation: shrink 6s ease-in-out infinite; }
+  @keyframes grow { 0%, 30% { width: var(--job); } 45%, 80% { width: calc(var(--job) + 15%); } 95%, 100% { width: var(--job); } }
+  @keyframes shrink { 0%, 30% { width: var(--ai); } 45%, 80% { width: calc(var(--ai) - 15%); } 95%, 100% { width: var(--ai); } }
+
+  .activity { display: none; }
+  @media (min-width: 700px) { .activity { display: block; } }
+  .activity ol { list-style: none; padding: 0.35rem 0; }
+  .activity li { display: grid; grid-template-columns: 4.2rem 1fr; gap: 0.5rem; padding: 0.4rem 0.85rem; font-size: 0.72rem; }
+  .t { font-family: var(--font-mono); color: var(--ink-3); }
+  .m { color: var(--ink-2); }
+  .m::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 0.45rem; vertical-align: 1px; background: var(--ink-3); }
+  .m.reclaim::before { background: #f5b14c; }
+  .m.join::before, .m.route::before { background: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reclaim .bar .j, .reclaim .bar .a { animation: none; }
+  }
+</style>

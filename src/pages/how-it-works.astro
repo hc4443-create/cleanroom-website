@@ -3,42 +3,78 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import MemoryGrid from '../components/MemoryGrid.astro';
 import Icon from '../components/Icon.astro';
 import CTABand from '../components/CTABand.astro';
+import { SITE } from '../config';
+
+const N = SITE.name;
 
 const steps = [
   {
     state: 'before',
-    title: 'Research jobs run as usual',
-    text: "Research jobs use your cluster's GPUs just as they do today. Many of them keep a GPU's compute busy while using only a small part of its memory, leaving the rest empty.",
+    title: 'Your jobs run as usual',
+    text: 'Slurm schedules your simulations exactly as it does today. Many of them keep a GPU’s compute busy while using only a small part of its memory.',
   },
   {
     state: 'shared',
-    title: 'Cleanroom places AI models in the unused memory',
-    text: 'Cleanroom puts AI models into the memory those jobs leave empty. Together, that space becomes a private AI service for your whole campus, running on GPUs you already own.',
+    title: 'Model experts fill the spare memory',
+    text: `${N} pools the spare memory of GPUs across the cluster and loads a large model into it. Together, that space holds a model that would otherwise need a dedicated multi-GPU server.`,
   },
   {
     state: 'reclaim',
-    title: 'Research always comes first',
-    text: 'If a research job needs its memory back, Cleanroom gives it up immediately. Your cluster exists for research, and Cleanroom is built around that.',
+    title: 'The host job always wins',
+    text: 'When a job needs its memory back, it gets it within milliseconds. Requests keep being answered, and nothing has to be saved first.',
   },
 ] as const;
 
+
+const rules = [
+  { title: 'Admission after warm-up', text: 'A GPU only lends memory once its job has settled. Jobs that claim most of the device up front are never used.' },
+  { title: 'A watchdog on every node', text: 'It checks free memory every few milliseconds and releases borrowed memory the moment a job grows. No network call, no save.' },
+  { title: 'Nothing to save first', text: 'Borrowed memory is simply released, never checkpointed, so your job never waits on us.' },
+  { title: 'A per-job slowdown budget', text: 'A governor measures each host job’s progress, ramps up slowly, and backs off fast, keeping well inside the limit you set.' },
+  { title: 'Isolated processes', text: `${N} runs in its own process and GPU context, separate from your job. A fault on our side can’t crash your simulation.` },
+  { title: 'Smart host selection', text: 'Bandwidth-heavy codes are never used as hosts. Jobs that are ending soon get their memory back ahead of time.' },
+];
+
+const levels = [
+  { tag: 'Level 1', title: 'Idle GPUs only', text: `${N} uses only GPUs Slurm hasn’t allocated, and steps aside when a job is scheduled.` },
+  { tag: 'Level 2', title: 'Store on busy GPUs', text: 'Model weights also use spare memory on busy GPUs, with no compute used.' },
+  { tag: 'Level 3', title: 'Compute on busy GPUs', text: 'Experts also run on busy GPUs, inside each job’s slowdown budget.' },
+];
+
+const features = [
+  { icon: 'server', title: 'Slurm-native', text: 'A Slurm plugin and launcher that read job state from the scheduler. Ships as Apptainer containers, with a preflight checker for your cluster.' },
+  { icon: 'code', title: 'OpenAI-compatible API', text: 'Works with existing SDKs, notebooks and agent frameworks, plus a chat interface for people who want one.' },
+  { icon: 'badge', title: 'Single sign-on and budgets', text: 'Sign in with your identity provider, issue keys, set budgets and track usage per project.' },
+  { icon: 'shield', title: 'Rules for each type of data', text: 'Choose where each project’s data may go. Sensitive classes run only on hardware you designate.' },
+  { icon: 'repeat', title: 'Batch, agents and chat', text: 'High-throughput batch and agent workloads, plus interactive chat, from the same service.' },
+  { icon: 'memory', title: 'Headroom simulator', text: 'Replay your scheduler history to see how much spare memory you have, and which models it can serve, before you install anything.' },
+] as const;
+
+const options = [
+  { name: 'A dedicated inference server', limit: 'New multi-GPU hardware to buy, plus power, staff and floor space' },
+  { name: 'Cloud AI APIs', limit: 'Billed per request, so batch and agent work gets expensive fast; data leaves your site' },
+  { name: 'Kubernetes GPU-sharing tools', limit: 'Need Kubernetes orchestration rather than fitting into the Slurm cluster you already run' },
+  { name: 'Preemptible queues', limit: 'Reuse whole idle GPUs only, never the spare memory inside busy ones' },
+];
+
 const faqs = [
-  { q: 'Do we need to buy new hardware?', a: 'No. Cleanroom runs on the GPUs your institution already owns.' },
-  { q: 'Will it slow down research jobs?', a: "Research jobs get their memory back immediately whenever they need it. To measure any effect on performance, we're running a controlled experiment with research software running alongside AI models. It tracks slowdown (our target is under 5%), response time, and how safely memory is handed back." },
-  { q: 'Which AI models can we use?', a: 'Your institution decides. That includes open models whose weights you keep, which supports reproducible research.' },
-  { q: 'Does our data leave campus?', a: 'Only if you allow it. You set rules for each type of data, so sensitive data stays on campus. For tasks that need the most capable commercial models, Cleanroom can send requests to the cloud wherever your institution permits it.' },
-  { q: 'Do researchers have to change their code?', a: 'Cleanroom provides one secure AI service that is compatible with the tools and code researchers already use.' },
+  { q: 'Do we need to buy new hardware?', a: `No. ${N} runs on the GPUs you already own.` },
+  { q: 'Will it slow down our jobs?', a: 'You set a slowdown budget, and the governor on each node keeps every host job inside it. Jobs get their memory back within milliseconds, and you can turn sharing off per job, node or site at any time.' },
+  { q: 'Which models can we run?', a: 'Open mixture-of-experts models, including frontier-scale models with hundreds of billions of parameters. You pick them and keep the weights.' },
+  { q: 'Does our data leave our site?', a: 'Only if you allow it. You set rules for each project and type of data. Sensitive work runs only on hardware you control.' },
+  { q: 'Do users have to change their code?', a: 'No. Simulations don’t change at all, and the AI service speaks the OpenAI API that most tools already support.' },
+  { q: 'What if a GPU disappears mid-request?', a: 'Your simulation is never affected. The enterprise edition adds high availability, so the service keeps answering requests.' },
 ];
 ---
 <BaseLayout
   title="How it works"
-  description="Cleanroom turns an existing research cluster into a private, campus-wide AI service by placing AI models in GPU memory that research jobs leave unused."
+  description={`${N} serves large AI models from the GPU memory HPC jobs leave empty, and gives it back within milliseconds when a job needs it.`}
 >
   <section class="page-hero">
     <div class="container">
       <span class="eyebrow">How it works</span>
-      <h1>A private AI service, made from memory your cluster isn't using.</h1>
-      <p class="lede">Cleanroom turns your existing research cluster into a private, campus-wide AI service. It runs AI models in GPU memory that research jobs leave unused, and gives that memory back the moment research needs it.</p>
+      <h1>An inference service, made from memory your cluster isn’t using.</h1>
+      <p class="lede">{N} serves large AI models from GPU memory that simulations leave empty, and gives that memory back the moment a job needs it.</p>
     </div>
   </section>
 
@@ -53,7 +89,7 @@ const faqs = [
               <p class="lede">{s.text}</p>
             </div>
             <div class="visual">
-              <MemoryGrid state={s.state} showLegend={i === 0 || i === 2} />
+              <MemoryGrid state={s.state} />
             </div>
           </li>
         ))}
@@ -62,34 +98,83 @@ const faqs = [
     </div>
   </section>
 
+
+  <!-- SAFETY -->
+  <section class="section dark" id="safety">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Host-job protection</span>
+        <h2>We are the guest. Your job is the host.</h2>
+        <p class="lede">Two control loops on every node protect your jobs, one for memory and one for compute. Both run locally, and both always fail in your job’s favor.</p>
+      </div>
+      <ul class="lines lines--3 rules">
+        {rules.map((r, i) => (
+          <li>
+            <span class="num">0{i + 1}</span>
+            <h3>{r.title}</h3>
+            <p>{r.text}</p>
+          </li>
+        ))}
+      </ul>
+      <ul class="lines lines--3 levels">
+        {levels.map((l) => (
+          <li>
+            <span class="tag">{l.tag}</span>
+            <h3>{l.title}</h3>
+            <p>{l.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Fits your cluster</span>
+        <h2>Works with what you already run.</h2>
+      </div>
+      <div class="grid grid--3">
+        {features.map((f) => (
+          <article class="card">
+            <div class="icon"><Icon name={f.icon} /></div>
+            <h3>{f.title}</h3>
+            <p>{f.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
   <section class="section section--soft">
     <div class="container">
       <div class="section-head">
-        <span class="eyebrow">For researchers</span>
-        <h2>What researchers get</h2>
+        <span class="eyebrow">Compared with the alternatives</span>
+        <h2>Other options cost more, or can’t use the memory you already have.</h2>
       </div>
-      <div class="grid grid--3">
-        <article class="card">
-          <div class="icon"><Icon name="code" /></div>
-          <h3>Works with existing tools</h3>
-          <p>One secure AI service that works with the tools and code researchers already use.</p>
-        </article>
-        <article class="card">
-          <div class="icon"><Icon name="badge" /></div>
-          <h3>Campus login</h3>
-          <p>Researchers sign in with their campus credentials, and usage can be billed to grants or departments.</p>
-        </article>
-        <article class="card">
-          <div class="icon"><Icon name="users" /></div>
-          <h3>One service for everyone</h3>
-          <p>A single shared service handles many users at once, so researchers don't each have to request cluster time to run their own model.</p>
-        </article>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Option</th><th scope="col">Its limit</th></tr>
+          </thead>
+          <tbody>
+            {options.map((o) => (
+              <tr><th scope="row">{o.name}</th><td>{o.limit}</td></tr>
+            ))}
+            <tr class="us">
+              <th scope="row">{N}</th>
+              <td>Uses spare memory inside busy GPUs, on the Slurm cluster you already run, with your data on your hardware.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
 
   <section class="section">
-    <div class="container faq-wrap">
+    <div class="container faq-wrap" id="faq">
       <div class="section-head">
         <span class="eyebrow">Questions</span>
         <h2>Common questions</h2>
@@ -110,7 +195,7 @@ const faqs = [
 
 <style>
   .walk { list-style: none; padding: 0; display: grid; gap: clamp(4rem, 9vw, 6.5rem); }
-  .step { display: inline-block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; }
+  .step { display: inline-block; font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 1rem; }
   .copy h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: 1rem; }
   .visual { padding: clamp(1.5rem, 4vw, 2.5rem) 1rem; border-radius: 20px; background: var(--bg-soft); border: 1px solid var(--line); }
   @media (min-width: 960px) { .walk li:nth-child(even) .copy { order: 2; } }
@@ -119,9 +204,19 @@ const faqs = [
   .faq-wrap { max-width: 52rem; }
   .faq { border-top: 1px solid var(--line); }
   details { border-bottom: 1px solid var(--line); }
-  summary { cursor: pointer; list-style: none; padding: 1.35rem 2.5rem 1.35rem 0; font-weight: 600; font-size: 1.08rem; position: relative; }
+  summary { cursor: pointer; list-style: none; padding: 1.35rem 2.5rem 1.35rem 0; font-weight: 550; font-size: 1.05rem; letter-spacing: -0.01em; color: var(--ink); position: relative; }
   summary::-webkit-details-marker { display: none; }
   summary::after { content: '+'; position: absolute; right: 0.25rem; top: 50%; transform: translateY(-50%); font-size: 1.5rem; font-weight: 300; color: var(--accent); transition: transform 0.2s; }
   details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
   details p { padding-bottom: 1.4rem; color: var(--ink-2); max-width: 42rem; }
+
+
+  .rules { padding: 0; list-style: none; }
+  .rules p { font-size: 0.95rem; }
+  .levels { margin-top: 3rem; padding: 0; list-style: none; }
+  .levels .tag { margin-bottom: 1rem; }
+  .levels p { font-size: 0.95rem; }
+
+  tr.us > * { background: var(--accent-soft); }
+  tr.us th { color: var(--accent-ink); }
 </style>
